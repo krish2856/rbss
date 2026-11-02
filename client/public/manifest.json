@@ -1,0 +1,39 @@
+{
+  "name": "Shree Rajgor Brahman Seva Samiti Ahmedabad",
+  "short_name": "RBSS Samaj",
+  "description": "Official Digital Community, Matrimonial & Samaj Portal for Rajgor Brahmin (Kathigor) Samaj",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#ffffff",
+  "theme_color": "#0b254e",
+  "lang": "en",
+  "categories": ["social", "community", "lifestyle"],
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

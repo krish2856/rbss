@@ -1,0 +1,27 @@
+{
+  "name": "rajgor-brahmin-samaj-platform",
+  "version": "1.0.0",
+  "description": "Complete Digital Community Platform & Installable PWA for Rajgor Brahmin Samaj",
+  "scripts": {
+    "install:all": "npm install --prefix server && npm install --prefix client",
+    "build:server": "npm run build --prefix server",
+    "build:client": "npm run build --prefix client",
+    "build": "npm run build:server && npm run build:client",
+    "start:server": "npm start --prefix server",
+    "start:client": "npm start --prefix client",
+    "dev:server": "npm run dev --prefix server",
+    "dev:client": "npm run dev --prefix client"
+  },
+  "keywords": [
+    "rajgor-brahmin-samaj",
+    "community-platform",
+    "pwa",
+    "matrimony",
+    "directory",
+    "nextjs",
+    "express",
+    "postgresql"
+  ],
+  "author": "Rajgor Brahmin Samaj IT Committee",
+  "license": "ISC"
+}

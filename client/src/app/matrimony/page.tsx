@@ -1,0 +1,625 @@
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import {
+  Heart,
+  Send,
+  Lock,
+  Unlock,
+  CheckCircle2,
+  Clock,
+  Sparkles,
+  MapPin,
+  Briefcase,
+  GraduationCap,
+  Calendar,
+  X,
+  Phone,
+  FileText,
+  UserCheck,
+} from 'lucide-react';
+import { useI18n } from '../../context/I18nContext';
+import { useAuth } from '../../context/AuthContext';
+import { fetchApi } from '../../lib/api';
+
+export default function MatrimonyPage() {
+  const { t } = useI18n();
+  const { user, isApproved } = useAuth();
+
+  const [activeTab, setActiveTab] = useState<'browse' | 'interests' | 'my_biodata'>('browse');
+  const [profiles, setProfiles] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [genderFilter, setGenderFilter] = useState('');
+  const [gotraFilter, setGotraFilter] = useState('');
+  const [manglikFilter, setManglikFilter] = useState('');
+
+  // Interests state
+  const [myInterests, setMyInterests] = useState<{ sent: any[]; received: any[] }>({
+    sent: [],
+    received: [],
+  });
+
+  // Modals
+  const [interestTarget, setInterestTarget] = useState<any>(null);
+  const [interestNote, setInterestNote] = useState('જય પરશુરામ. અમે આપના બાયોડેટામાં રસ દર્શાવીએ છીએ. કૃપા કરીને વિગત ચકાસી આગળ વાતચીત માટે અનુકૂળતા જણાવશો.');
+  const [sendSuccess, setSendSuccess] = useState('');
+  const [selectedBiodata, setSelectedBiodata] = useState<any>(null);
+
+  // My Biodata Form
+  const [biodataForm, setBiodataForm] = useState({
+    height_cm: 172,
+    weight_kg: 68,
+    complexion: 'Fair',
+    rashi: 'Kanya (Virgo)',
+    nakshatra: 'Hasta',
+    manglik: 'no',
+    diet: 'pure_vegetarian',
+    annual_income: '15 - 18 Lakhs INR',
+    partner_expectations: 'Looking for a cultured, educated Brahmin girl with family values.',
+    hobbies: 'Reading, spiritual events, travel, classical music',
+  });
+
+  const loadProfiles = async () => {
+    setLoading(true);
+    try {
+      const q = new URLSearchParams();
+      if (genderFilter) q.append('gender', genderFilter);
+      if (gotraFilter) q.append('gotra', gotraFilter);
+      if (manglikFilter) q.append('manglik', manglikFilter);
+
+      const res = await fetchApi(`/matrimony/profiles?${q.toString()}`);
+      setProfiles(res.profiles || []);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadInterests = async () => {
+    if (!user) return;
+    try {
+      const res = await fetchApi('/matrimony/interests/my');
+      setMyInterests({ sent: res.sent || [], received: res.received || [] });
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
+    loadProfiles();
+    if (user) {
+      loadInterests();
+    }
+  }, [genderFilter, gotraFilter, manglikFilter, user]);
+
+  const handleSendInterest = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!interestTarget) return;
+
+    try {
+      await fetchApi('/matrimony/interest/send', {
+        method: 'POST',
+        body: JSON.stringify({
+          receiver_user_id: interestTarget.user_id,
+          note: interestNote,
+        }),
+      });
+      setSendSuccess('તમારી પસંદગી વિનંતી (Interest) સફળતાપૂર્વક મોકલાઈ ગઈ છે.');
+      setTimeout(() => {
+        setInterestTarget(null);
+        setSendSuccess('');
+        loadInterests();
+      }, 1800);
+    } catch (err: any) {
+      alert(err.message || 'Failed to send interest.');
+    }
+  };
+
+  const handleRespondInterest = async (interestId: string, action: 'accept' | 'reject') => {
+    try {
+      await fetchApi('/matrimony/interest/respond', {
+        method: 'POST',
+        body: JSON.stringify({ interest_id: interestId, action }),
+      });
+      loadInterests();
+    } catch (err: any) {
+      alert(err.message || 'Failed to update interest.');
+    }
+  };
+
+  const handleSaveMyBiodata = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await fetchApi('/matrimony/profile/upsert', {
+        method: 'POST',
+        body: JSON.stringify(biodataForm),
+      });
+      alert('તમારો વૈવાહિક બાયોડેટા સફળતાપૂર્વક સચવાયો છે.');
+      loadProfiles();
+      setActiveTab('browse');
+    } catch (err: any) {
+      alert(err.message || 'Failed to save biodata.');
+    }
+  };
+
+  return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+      {/* Header Banner */}
+      <div className="bg-gradient-to-r from-rose-950 via-slate-900 to-samaj-navy-950 rounded-3xl p-6 sm:p-8 text-white relative overflow-hidden shadow-card">
+        <div className="relative z-10 max-w-2xl space-y-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-500/20 text-rose-300 text-xs font-bold border border-rose-500/30">
+            <Heart className="w-3.5 h-3.5 fill-rose-400" />
+            <span>રાજગોર વૈવાહિક સંબંધ પોર્ટલ</span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+            {t('matrimony_title')}
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+            {t('matrimony_sub')}
+          </p>
+        </div>
+      </div>
+
+      {/* Tabs */}
+      <div className="flex items-center gap-2 border-b border-slate-200 text-sm font-bold">
+        <button
+          onClick={() => setActiveTab('browse')}
+          className={`pb-3 px-4 flex items-center gap-2 border-b-2 transition ${
+            activeTab === 'browse'
+              ? 'border-samaj-gold text-samaj-navy'
+              : 'border-transparent text-slate-400 hover:text-slate-700'
+          }`}
+        >
+          <Heart className="w-4 h-4" />
+          <span>{t('matrimony_all')} ({profiles.length})</span>
+        </button>
+
+        {user && (
+          <button
+            onClick={() => setActiveTab('interests')}
+            className={`pb-3 px-4 flex items-center gap-2 border-b-2 transition ${
+              activeTab === 'interests'
+                ? 'border-samaj-gold text-samaj-navy'
+                : 'border-transparent text-slate-400 hover:text-slate-700'
+            }`}
+          >
+            <Sparkles className="w-4 h-4" />
+            <span>
+              મારી પસંદગી વિનંતીઓ (Interests) (
+              {myInterests.received.length + myInterests.sent.length})
+            </span>
+          </button>
+        )}
+
+        {user && (
+          <button
+            onClick={() => setActiveTab('my_biodata')}
+            className={`pb-3 px-4 flex items-center gap-2 border-b-2 transition ${
+              activeTab === 'my_biodata'
+                ? 'border-samaj-gold text-samaj-navy'
+                : 'border-transparent text-slate-400 hover:text-slate-700'
+            }`}
+          >
+            <FileText className="w-4 h-4" />
+            <span>મારો બાયોડેટા (My Biodata)</span>
+          </button>
+        )}
+      </div>
+
+      {/* TAB 1: BROWSE PROFILES */}
+      {activeTab === 'browse' && (
+        <div className="space-y-6">
+          {/* Filters */}
+          <div className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-subtle flex flex-wrap items-center gap-3 text-xs font-semibold text-slate-700">
+            <div className="flex items-center gap-1.5">
+              <span>પાત્ર પસંદ કરો:</span>
+              <select
+                value={genderFilter}
+                onChange={(e) => setGenderFilter(e.target.value)}
+                className="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 font-medium"
+              >
+                <option value="">{t('all')}</option>
+                <option value="female">કન્યાઓ (Brides)</option>
+                <option value="male">યુવકો (Grooms)</option>
+              </select>
+            </div>
+
+            <div className="flex items-center gap-1.5">
+              <span>માંગલિક સ્થિતિ:</span>
+              <select
+                value={manglikFilter}
+                onChange={(e) => setManglikFilter(e.target.value)}
+                className="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 font-medium"
+              >
+                <option value="">બધા (All)</option>
+                <option value="no">Non-Manglik</option>
+                <option value="anshik">Anshik Manglik</option>
+                <option value="yes">Manglik</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Cards Grid */}
+          {loading ? (
+            <div className="py-20 text-center text-slate-400 text-sm">{t('loading')}</div>
+          ) : profiles.length === 0 ? (
+            <div className="bg-white rounded-2xl p-12 text-center text-slate-500 border border-slate-200">
+              કોઈ વૈવાહિક પ્રોફાઇલ ઉપલબ્ધ નથી.
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {profiles.map((p) => (
+                <div
+                  key={p.id}
+                  className="bg-white rounded-3xl overflow-hidden border border-slate-200/80 shadow-subtle hover:shadow-card transition flex flex-col justify-between"
+                >
+                  <div>
+                    {/* Photo with badges */}
+                    <div className="relative h-64 bg-slate-100 overflow-hidden group">
+                      <img
+                        src={p.photos?.[0] || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&fit=crop&q=80'}
+                        alt={p.full_name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                      <div className="absolute top-3 left-3 flex gap-2">
+                        <span className="px-2.5 py-1 rounded-full bg-white/95 text-samaj-navy text-xs font-bold shadow-xs">
+                          {p.age} વર્ષ | {p.height_cm} cm
+                        </span>
+                        {p.is_verified && (
+                          <span className="px-2 py-1 rounded-full bg-emerald-500 text-white text-[10px] font-bold flex items-center gap-1 shadow-xs">
+                            <CheckCircle2 className="w-3 h-3" />
+                            <span>વેરિફાઇડ</span>
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="absolute bottom-3 right-3 px-2 py-0.5 rounded-md bg-samaj-navy/85 text-amber-300 text-[10px] font-semibold backdrop-blur-xs">
+                        રાશિ: {p.rashi}
+                      </div>
+                    </div>
+
+                    {/* Bio Specs */}
+                    <div className="p-5 space-y-3">
+                      <div>
+                        <h3 className="font-extrabold text-lg text-slate-900 leading-snug">
+                          {p.full_name}
+                        </h3>
+                        <p className="text-xs font-semibold text-samaj-gold-700 mt-0.5">
+                          ગોત્ર: {p.gotra} | કુળદેવી: {p.kuldevi}
+                        </p>
+                      </div>
+
+                      <div className="space-y-1.5 text-xs text-slate-600 bg-amber-50/50 p-3 rounded-xl border border-amber-200/50">
+                        <div className="flex items-center gap-2">
+                          <GraduationCap className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                          <span className="truncate">{p.education}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Briefcase className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                          <span className="truncate">{p.occupation} ({p.annual_income})</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                          <span className="truncate">મૂળ: {p.native_village} | હાલ: {p.current_city}</span>
+                        </div>
+                      </div>
+
+                      {p.partner_expectations && (
+                        <p className="text-xs text-slate-500 line-clamp-2 italic">
+                          અપેક્ષા: &quot;{p.partner_expectations}&quot;
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="p-5 pt-0 border-t border-slate-100 flex items-center justify-between gap-3 mt-2">
+                    <button
+                      onClick={() => setSelectedBiodata(p)}
+                      className="px-3.5 py-2 text-xs font-bold text-slate-700 hover:text-samaj-navy bg-slate-100 rounded-xl transition"
+                    >
+                      સંપૂર્ણ બાયોડેટા
+                    </button>
+
+                    <button
+                      onClick={() => setInterestTarget(p)}
+                      className="px-4 py-2 bg-samaj-gold hover:bg-samaj-gold-500 text-slate-950 text-xs font-bold rounded-xl shadow-xs transition flex items-center gap-1.5"
+                    >
+                      <Heart className="w-3.5 h-3.5 fill-slate-950" />
+                      <span>{t('send_interest')}</span>
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* TAB 2: MY INTERESTS (WORKFLOW) */}
+      {activeTab === 'interests' && (
+        <div className="space-y-8">
+          {/* Received Requests */}
+          <div className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-subtle space-y-4">
+            <h3 className="font-bold text-base text-samaj-navy flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-samaj-gold" />
+              <span>તમને મળેલા પ્રસ્તાવ (Received Interests) ({myInterests.received.length})</span>
+            </h3>
+
+            {myInterests.received.length === 0 ? (
+              <p className="text-xs text-slate-400 italic py-4">હજુ કોઈ પ્રસ્તાવ મળેલ નથી.</p>
+            ) : (
+              <div className="space-y-3">
+                {myInterests.received.map((item) => (
+                  <div
+                    key={item.id}
+                    className="p-4 rounded-2xl border border-slate-200 bg-slate-50/70 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+                  >
+                    <div className="flex items-center gap-3.5">
+                      <img
+                        src={item.photo_url || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=120&fit=crop&q=80'}
+                        alt={item.full_name}
+                        className="w-12 h-12 rounded-xl object-cover border border-amber-200 shrink-0"
+                      />
+                      <div>
+                        <h4 className="font-bold text-sm text-slate-900">{item.full_name}</h4>
+                        <p className="text-xs text-slate-500">
+                          ગોત્ર: {item.gotra} | શહેર: {item.current_city}
+                        </p>
+                        <p className="text-xs text-slate-600 mt-1 italic">&quot;{item.note}&quot;</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 self-end sm:self-center">
+                      {item.status === 'pending' ? (
+                        <>
+                          <button
+                            onClick={() => handleRespondInterest(item.id, 'accept')}
+                            className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition"
+                          >
+                            સ્વીકારો (Accept & Unlock)
+                          </button>
+                          <button
+                            onClick={() => handleRespondInterest(item.id, 'reject')}
+                            className="px-3 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-xl transition"
+                          >
+                            અસ્વીકાર
+                          </button>
+                        </>
+                      ) : (
+                        <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-200">
+                          <Unlock className="w-3.5 h-3.5" />
+                          <span>સ્વીકારેલ – સંપર્ક: {item.phone}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Sent Requests */}
+          <div className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-subtle space-y-4">
+            <h3 className="font-bold text-base text-samaj-navy flex items-center gap-2">
+              <Send className="w-4 h-4 text-blue-600" />
+              <span>તમે મોકલેલા પ્રસ્તાવ (Sent Interests) ({myInterests.sent.length})</span>
+            </h3>
+
+            {myInterests.sent.length === 0 ? (
+              <p className="text-xs text-slate-400 italic py-4">તમે હજુ કોઈ પ્રસ્તાવ મોકલેલ નથી.</p>
+            ) : (
+              <div className="space-y-3">
+                {myInterests.sent.map((item) => (
+                  <div
+                    key={item.id}
+                    className="p-4 rounded-2xl border border-slate-200 bg-slate-50/70 flex items-center justify-between gap-4"
+                  >
+                    <div className="flex items-center gap-3">
+                      <img
+                        src={item.photo_url || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=120&fit=crop&q=80'}
+                        alt={item.full_name}
+                        className="w-11 h-11 rounded-xl object-cover shrink-0"
+                      />
+                      <div>
+                        <h4 className="font-bold text-sm text-slate-900">{item.full_name}</h4>
+                        <p className="text-xs text-slate-500">શહેર: {item.current_city}</p>
+                      </div>
+                    </div>
+
+                    <div className="text-xs font-bold">
+                      {item.status === 'accepted' ? (
+                        <span className="text-emerald-700 bg-emerald-50 px-3 py-1 rounded-lg border border-emerald-200 flex items-center gap-1">
+                          <Unlock className="w-3.5 h-3.5" />
+                          <span>સ્વીકૃત – ફોન: {item.phone}</span>
+                        </span>
+                      ) : (
+                        <span className="text-amber-800 bg-amber-50 px-3 py-1 rounded-lg border border-amber-200 flex items-center gap-1">
+                          <Clock className="w-3.5 h-3.5" />
+                          <span>વિચારણા હેઠળ (Pending)</span>
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* TAB 3: MY BIODATA FORM */}
+      {activeTab === 'my_biodata' && (
+        <div className="max-w-2xl bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-card space-y-6">
+          <h2 className="text-xl font-bold text-samaj-navy">
+            વૈવાહિક બાયોડેટા નોંધણી / ફેરફાર
+          </h2>
+
+          <form onSubmit={handleSaveMyBiodata} className="space-y-4 text-sm">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">ઊંચાઈ (cm)</label>
+                <input
+                  type="number"
+                  value={biodataForm.height_cm}
+                  onChange={(e) => setBiodataForm({ ...biodataForm, height_cm: Number(e.target.value) })}
+                  className="w-full px-3 py-2 border rounded-xl"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">વાર્ષિક આવક (Annual Income)</label>
+                <input
+                  type="text"
+                  value={biodataForm.annual_income}
+                  onChange={(e) => setBiodataForm({ ...biodataForm, annual_income: e.target.value })}
+                  className="w-full px-3 py-2 border rounded-xl"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">રાશિ (Rashi)</label>
+                <input
+                  type="text"
+                  value={biodataForm.rashi}
+                  onChange={(e) => setBiodataForm({ ...biodataForm, rashi: e.target.value })}
+                  className="w-full px-3 py-2 border rounded-xl"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">માંગલિક (Manglik)</label>
+                <select
+                  value={biodataForm.manglik}
+                  onChange={(e) => setBiodataForm({ ...biodataForm, manglik: e.target.value })}
+                  className="w-full px-3 py-2 border rounded-xl bg-white"
+                >
+                  <option value="no">Non-Manglik</option>
+                  <option value="anshik">Anshik Manglik</option>
+                  <option value="yes">Manglik</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1">
+                જીવનસાથી અપેક્ષા (Partner Expectations)
+              </label>
+              <textarea
+                rows={3}
+                value={biodataForm.partner_expectations}
+                onChange={(e) => setBiodataForm({ ...biodataForm, partner_expectations: e.target.value })}
+                className="w-full px-3 py-2 border rounded-xl text-xs"
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="w-full py-3 bg-samaj-navy text-white font-bold rounded-xl hover:bg-slate-800 transition"
+            >
+              બાયોડેટા પ્રકાશિત કરો (Save Biodata)
+            </button>
+          </form>
+        </div>
+      )}
+
+      {/* Modal: Send Interest */}
+      {interestTarget && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between pb-3 border-b mb-4">
+              <h3 className="font-bold text-base text-samaj-navy flex items-center gap-2">
+                <Heart className="w-4 h-4 text-rose-500 fill-rose-500" />
+                <span>રસ દર્શાવો (Send Interest)</span>
+              </h3>
+              <button onClick={() => setInterestTarget(null)} className="p-1 text-slate-400 hover:bg-slate-100 rounded-full">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {sendSuccess ? (
+              <div className="py-6 text-center space-y-2">
+                <CheckCircle2 className="w-12 h-12 text-emerald-500 mx-auto" />
+                <p className="text-sm font-bold text-slate-800">{sendSuccess}</p>
+              </div>
+            ) : (
+              <form onSubmit={handleSendInterest} className="space-y-4 text-sm">
+                <p className="text-xs text-slate-600">
+                  આપ <strong>{interestTarget.full_name}</strong> ને વૈવાહિક પ્રસ્તાવ મોકલી રહ્યા છો. સામે પક્ષ તરફથી સ્વીકાર થયા પછી બંને પરિવારના સંપર્ક નંબર ઉપલબ્ધ થશે.
+                </p>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    સંદેશ / પરિચય નોંધ (Message)
+                  </label>
+                  <textarea
+                    rows={4}
+                    required
+                    value={interestNote}
+                    onChange={(e) => setInterestNote(e.target.value)}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-samaj-navy"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full py-3 bg-samaj-gold hover:bg-samaj-gold-500 text-slate-950 font-bold text-xs rounded-xl shadow-xs transition"
+                >
+                  પ્રસ્તાવ મોકલો (Confirm & Send)
+                </button>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Full Biodata Preview */}
+      {selectedBiodata && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-6 shadow-2xl border border-slate-200 animate-in zoom-in-95 duration-200 text-slate-800">
+            <div className="flex items-center justify-between pb-3 border-b mb-4">
+              <h3 className="font-bold text-base text-samaj-navy">સંપૂર્ણ લગ્ન બાયોડેટા</h3>
+              <button onClick={() => setSelectedBiodata(null)} className="p-1 rounded-full text-slate-400 hover:bg-slate-100">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-4 text-xs">
+              <div className="flex items-center gap-4">
+                <img
+                  src={selectedBiodata.photos?.[0] || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&fit=crop&q=80'}
+                  alt={selectedBiodata.full_name}
+                  className="w-20 h-20 rounded-2xl object-cover border-2 border-amber-300"
+                />
+                <div>
+                  <h4 className="font-extrabold text-base text-slate-900">{selectedBiodata.full_name}</h4>
+                  <p className="text-samaj-gold-700 font-bold">ગોત્ર: {selectedBiodata.gotra} | {selectedBiodata.kuldevi}</p>
+                  <p className="text-slate-500">{selectedBiodata.age} વર્ષ | {selectedBiodata.height_cm} cm | {selectedBiodata.complexion}</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 bg-slate-50 p-3 rounded-xl border border-slate-200">
+                <div>રાશિ: <strong>{selectedBiodata.rashi}</strong></div>
+                <div>માંગલિક: <strong>{selectedBiodata.manglik}</strong></div>
+                <div>શિક્ષણ: <strong>{selectedBiodata.education}</strong></div>
+                <div>નોકરી/વ્યવસાય: <strong>{selectedBiodata.occupation}</strong></div>
+                <div>આવક: <strong>{selectedBiodata.annual_income}</strong></div>
+                <div>મૂળ ગામ: <strong>{selectedBiodata.native_village}</strong></div>
+              </div>
+
+              <div className="p-3 bg-amber-50 rounded-xl border border-amber-200">
+                <h5 className="font-bold text-slate-800 mb-1">જીવનસાથી અપેક્ષા:</h5>
+                <p className="text-slate-600">{selectedBiodata.partner_expectations}</p>
+              </div>
+
+              <div className="p-3 bg-slate-100 rounded-xl text-center text-slate-600 font-medium">
+                🔒 ફોન નંબર ગોપનીયતા: બંને પક્ષો વચ્ચે પરસ્પર રસ સ્વીકાર્યા પછી જ મોબાઈલ નંબર પ્રદર્શિત થાય છે.
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

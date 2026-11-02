@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="gu">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Offline – Rajgor Brahmin Samaj</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans Gujarati", sans-serif;
+      background-color: #fcfbf7;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 24px;
+      text-align: center;
+    }
+    .card {
+      max-width: 440px;
+      width: 100%;
+      background: #ffffff;
+      border-radius: 20px;
+      padding: 36px 24px;
+      box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08);
+      border: 1px solid #f1f5f9;
+    }
+    .emblem {
+      width: 72px;
+      height: 72px;
+      margin: 0 auto 20px;
+      background: #fef3c7;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #d97706;
+      font-size: 32px;
+    }
+    h1 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 8px;
+    }
+    h2 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #d97706;
+      margin-bottom: 16px;
+    }
+    p {
+      font-size: 14px;
+      line-height: 1.6;
+      color: #475569;
+      margin-bottom: 24px;
+    }
+    .btn {
+      display: inline-block;
+      width: 100%;
+      background: #0f172a;
+      color: #ffffff;
+      font-weight: 600;
+      font-size: 15px;
+      padding: 14px 20px;
+      border-radius: 12px;
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+      transition: background 0.2s;
+    }
+    .btn:hover { background: #1e293b; }
+    .emergency {
+      margin-top: 24px;
+      font-size: 12px;
+      color: #64748b;
+      border-top: 1px solid #e2e8f0;
+      padding-top: 16px;
+    }
+    .emergency strong { color: #0f172a; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="emblem">🕉️</div>
+    <h1>ઇન્ટરનેટ કનેક્શન નથી</h1>
+    <h2>તમે ઑફલાઇન છો / You are offline</h2>
+    <p>
+      રાજગોર બ્રાહ્મણ સમાજ પોર્ટલના લાઈવ ડેટા અને ડિરેક્ટરી જોવા માટે સક્રિય ઈન્ટરનેટ કનેક્શન જરૂરી છે. કૃપા કરીને તમારું નેટવર્ક તપાસો.
+    </p>
+    <button class="btn" onclick="window.location.reload()">ફરીથી પ્રયાસ કરો (Retry)</button>
+    <div class="emergency">
+      ઈમરજન્સી રક્તદાન કે હેલ્પલાઈન માટે સંપર્ક કરો:<br>
+      <strong>+91 98980 00001 / 98980 00002</strong>
+    </div>
+  </div>
+</body>
+</html>
