@@ -43,15 +43,8 @@ export async function initDatabase() {
 
       // Test connection
       const client = await pool.connect();
-      console.log('PostgreSQL connected successfully.');
-
-      // Run schema
-      const schemaPath = path.join(__dirname, 'schema.sql');
-      if (fs.existsSync(schemaPath)) {
-        const schemaSql = fs.readFileSync(schemaPath, 'utf8');
-        await client.query(schemaSql);
-        console.log('PostgreSQL schema applied / verified.');
-      }
+      await client.query('SELECT 1');
+      console.log('PostgreSQL connected and verified successfully.');
       client.release();
       isUsingPostgres = true;
     } catch (err: any) {

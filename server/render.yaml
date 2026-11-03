@@ -2,20 +2,21 @@ services:
   - type: web
     name: rajgor-samaj-api
     env: node
-    plan: starter
+    plan: free
     rootDir: server
     buildCommand: npm install && npm run build
     startCommand: npm start
+    healthCheckPath: /health
     envVars:
       - key: NODE_ENV
         value: production
-      - key: PORT
-        value: 5000
       - key: JWT_SECRET
         generateValue: true
       - key: JWT_EXPIRES_IN
-        value: 7d
+        value: 30d
       - key: CLIENT_URL
         sync: false
       - key: DATABASE_URL
+        sync: false
+      - key: FAST2SMS_API_KEY
         sync: false
