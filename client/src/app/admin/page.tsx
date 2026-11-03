@@ -96,7 +96,7 @@ export default function AdminDashboardPage() {
   const handleApproveMember = async (userId: string) => {
     try {
       await fetchApi(`/admin/approve-member/${userId}`, { method: 'POST' });
-      alert('સભ્યને સફળતાપૂર્વક પ્રમાણિત કરવામાં આવ્યા.');
+      alert('Member verified and approved successfully.');
       loadAdminData();
     } catch (err: any) {
       alert(err.message || 'Approval failed.');
@@ -104,10 +104,10 @@ export default function AdminDashboardPage() {
   };
 
   const handleRejectMember = async (userId: string) => {
-    if (!confirm('શું આપ ખરેખર આ અરજી અસ્વીકાર કરવા માંગો છો?')) return;
+    if (!confirm('Are you sure you want to reject this membership application?')) return;
     try {
       await fetchApi(`/admin/reject-member/${userId}`, { method: 'POST' });
-      alert('અરજી રદ કરવામાં આવી.');
+      alert('Application rejected.');
       loadAdminData();
     } catch (err: any) {
       alert(err.message || 'Rejection failed.');
@@ -121,7 +121,7 @@ export default function AdminDashboardPage() {
         method: 'POST',
         body: JSON.stringify(ancForm),
       });
-      alert('પરિપત્ર સફળતાપૂર્વક પ્રકાશિત થયો.');
+      alert('Official notice published successfully.');
       setAncForm({ title: '', title_gu: '', category: 'notice', content: '', is_urgent: false, is_pinned: false });
     } catch (err: any) {
       alert(err.message || 'Failed to post announcement.');
@@ -135,7 +135,7 @@ export default function AdminDashboardPage() {
         method: 'POST',
         body: JSON.stringify(evForm),
       });
-      alert('કાર્યક્રમ સફળતાપૂર્વક ઉમેરાયો.');
+      alert('Event scheduled and published successfully.');
       setEvForm({
         title: '',
         title_gu: '',
@@ -175,7 +175,7 @@ export default function AdminDashboardPage() {
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
     link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `Rajgor_Samaj_Report_${new Date().toISOString().split('T')[0]}.csv`);
+    link.setAttribute('download', `RBSS_Report_${new Date().toISOString().split('T')[0]}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -184,141 +184,141 @@ export default function AdminDashboardPage() {
   if (!user || !isAdmin) return null;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 space-y-6">
       {/* Admin Top Header */}
-      <div className="bg-gradient-to-r from-samaj-navy-950 via-slate-900 to-samaj-navy-900 rounded-3xl p-6 sm:p-8 text-white relative shadow-card flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="bg-gradient-to-r from-samaj-navy-950 via-slate-900 to-samaj-navy-900 rounded-3xl p-5 sm:p-8 text-white relative shadow-card flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="space-y-1">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-samaj-gold/20 text-samaj-gold-300 text-xs font-bold border border-samaj-gold/30">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/20 text-orange-400 text-xs font-bold border border-orange-500/30">
             <ShieldAlert className="w-3.5 h-3.5" />
-            <span>વહીવટી કાર્યાલય (Admin Command Portal)</span>
+            <span>Admin Executive Console</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-            {t('admin_title')}
+          <h1 className="text-xl sm:text-3xl font-extrabold tracking-tight">
+            Central Administrative Dashboard
           </h1>
           <p className="text-xs text-slate-300">
-            સક્રિય ઍડમિનિસ્ટ્રેટર: <strong>{user.profile?.full_name || user.phone}</strong> (હોદ્દો: <span className="uppercase text-amber-300">{user.role}</span>)
+            Active Administrator: <strong>{user.profile?.full_name || user.phone}</strong> (Role: <span className="uppercase text-orange-400 font-bold">{user.role}</span>)
           </p>
         </div>
 
         <div className="flex items-center gap-2">
           <button
             onClick={loadAdminData}
-            className="px-3.5 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5"
+            className="px-3.5 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 touch-manipulation active:scale-95"
           >
             <RefreshCw className="w-3.5 h-3.5" />
-            <span>રિફ્રેશ (Refresh)</span>
+            <span>Refresh</span>
           </button>
           <button
             onClick={handleExportCSV}
-            className="px-3.5 py-2 bg-samaj-gold hover:bg-samaj-gold-500 text-slate-950 rounded-xl text-xs font-bold shadow-xs transition flex items-center gap-1.5"
+            className="px-3.5 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-xl text-xs font-bold shadow-xs transition flex items-center gap-1.5 touch-manipulation active:scale-95"
           >
             <Download className="w-3.5 h-3.5" />
-            <span>Excel / CSV Export</span>
+            <span>Export CSV</span>
           </button>
         </div>
       </div>
 
       {/* Metrics Cards */}
       {metrics && (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-subtle">
-            <span className="text-xs font-bold text-slate-500 uppercase">પ્રમાણિત સભ્યો</span>
-            <div className="text-2xl sm:text-3xl font-black text-samaj-navy mt-1">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-xs">
+            <span className="text-[11px] font-bold text-slate-500 uppercase">Verified Members</span>
+            <div className="text-xl sm:text-3xl font-black text-samaj-navy mt-1">
               {metrics.totalMembers}
             </div>
-            <span className="text-[11px] text-emerald-600 font-semibold">સક્રિય જ્ઞાતિજનો</span>
+            <span className="text-[10px] text-emerald-600 font-semibold">Active Samaj Directory</span>
           </div>
 
-          <div className="bg-white rounded-2xl p-5 border border-amber-200 bg-amber-50/20 shadow-subtle">
-            <span className="text-xs font-bold text-amber-800 uppercase">નવી મંજૂરી બાકી</span>
-            <div className="text-2xl sm:text-3xl font-black text-amber-900 mt-1">
+          <div className="bg-white rounded-2xl p-4 sm:p-5 border border-amber-200 bg-amber-50/20 shadow-xs">
+            <span className="text-[11px] font-bold text-amber-800 uppercase">Pending Approvals</span>
+            <div className="text-xl sm:text-3xl font-black text-amber-900 mt-1">
               {metrics.pendingApprovals}
             </div>
-            <span className="text-[11px] text-amber-700 font-semibold">ચકાસણી જરૂરી</span>
+            <span className="text-[10px] text-amber-700 font-semibold">New applications</span>
           </div>
 
-          <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-subtle">
-            <span className="text-xs font-bold text-slate-500 uppercase">વૈવાહિક સંબંધો</span>
-            <div className="text-2xl sm:text-3xl font-black text-rose-700 mt-1">
+          <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-xs">
+            <span className="text-[11px] font-bold text-slate-500 uppercase">Matrimonial Profiles</span>
+            <div className="text-xl sm:text-3xl font-black text-rose-700 mt-1">
               {metrics.matrimonyProfiles}
             </div>
-            <span className="text-[11px] text-slate-400 font-semibold">સક્રિય બાયોડેટા</span>
+            <span className="text-[10px] text-slate-400 font-semibold">Active Biodatas</span>
           </div>
 
-          <div className="bg-white rounded-2xl p-5 border border-emerald-200 bg-emerald-50/20 shadow-subtle">
-            <span className="text-xs font-bold text-emerald-800 uppercase">તિજોરી શિલ્લક</span>
-            <div className="text-2xl sm:text-3xl font-black text-emerald-900 mt-1">
-              ₹{(metrics.netTreasuryBalance).toLocaleString('en-IN')}
+          <div className="bg-white rounded-2xl p-4 sm:p-5 border border-emerald-200 bg-emerald-50/20 shadow-xs">
+            <span className="text-[11px] font-bold text-emerald-800 uppercase">Treasury Balance</span>
+            <div className="text-xl sm:text-3xl font-black text-emerald-900 mt-1">
+              ₹{(metrics.netTreasuryBalance || 0).toLocaleString('en-IN')}
             </div>
-            <span className="text-[11px] text-emerald-700 font-semibold">કુલ એકત્રિત સેવા ફંડ</span>
+            <span className="text-[10px] text-emerald-700 font-semibold">Net Community Fund</span>
           </div>
         </div>
       )}
 
-      {/* Navigation Tabs */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-2 text-xs sm:text-sm font-bold border-b border-slate-200">
+      {/* Navigation Tabs (Horizontally scrollable on mobile) */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-2 text-xs sm:text-sm font-bold border-b border-slate-200 scrollbar-none">
         <button
           onClick={() => setActiveTab('approvals')}
-          className={`pb-3 px-4 border-b-2 transition whitespace-nowrap ${
-            activeTab === 'approvals' ? 'border-samaj-gold text-samaj-navy' : 'border-transparent text-slate-400'
+          className={`pb-2.5 px-3 sm:px-4 border-b-2 whitespace-nowrap transition touch-manipulation ${
+            activeTab === 'approvals' ? 'border-orange-600 text-orange-600' : 'border-transparent text-slate-400'
           }`}
         >
-          નવી સભ્ય મંજૂરી ({pendingMembers.length})
+          Member Approvals ({pendingMembers.length})
         </button>
 
         <button
           onClick={() => setActiveTab('roles')}
-          className={`pb-3 px-4 border-b-2 transition whitespace-nowrap ${
-            activeTab === 'roles' ? 'border-samaj-gold text-samaj-navy' : 'border-transparent text-slate-400'
+          className={`pb-2.5 px-3 sm:px-4 border-b-2 whitespace-nowrap transition touch-manipulation ${
+            activeTab === 'roles' ? 'border-orange-600 text-orange-600' : 'border-transparent text-slate-400'
           }`}
         >
-          હોદ્દા અને પરમિશન (RBAC Roles)
+          RBAC Roles & Permissions
         </button>
 
         <button
           onClick={() => setActiveTab('announcements')}
-          className={`pb-3 px-4 border-b-2 transition whitespace-nowrap ${
-            activeTab === 'announcements' ? 'border-samaj-gold text-samaj-navy' : 'border-transparent text-slate-400'
+          className={`pb-2.5 px-3 sm:px-4 border-b-2 whitespace-nowrap transition touch-manipulation ${
+            activeTab === 'announcements' ? 'border-orange-600 text-orange-600' : 'border-transparent text-slate-400'
           }`}
         >
-          પરિપત્ર પ્રકાશિત કરો
+          Post Notice
         </button>
 
         <button
           onClick={() => setActiveTab('events')}
-          className={`pb-3 px-4 border-b-2 transition whitespace-nowrap ${
-            activeTab === 'events' ? 'border-samaj-gold text-samaj-navy' : 'border-transparent text-slate-400'
+          className={`pb-2.5 px-3 sm:px-4 border-b-2 whitespace-nowrap transition touch-manipulation ${
+            activeTab === 'events' ? 'border-orange-600 text-orange-600' : 'border-transparent text-slate-400'
           }`}
         >
-          નવો કાર્યક્રમ ઉમેરો
+          Add Event
         </button>
 
         <button
           onClick={() => setActiveTab('logs')}
-          className={`pb-3 px-4 border-b-2 transition whitespace-nowrap ${
-            activeTab === 'logs' ? 'border-samaj-gold text-samaj-navy' : 'border-transparent text-slate-400'
+          className={`pb-2.5 px-3 sm:px-4 border-b-2 whitespace-nowrap transition touch-manipulation ${
+            activeTab === 'logs' ? 'border-orange-600 text-orange-600' : 'border-transparent text-slate-400'
           }`}
         >
-          ઓડિટ લોગ્સ (Audit Trail)
+          Audit Trail
         </button>
       </div>
 
       {/* TAB 1: PENDING APPROVALS */}
       {activeTab === 'approvals' && (
-        <div className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-subtle space-y-4">
+        <div className="bg-white rounded-3xl p-4 sm:p-6 border border-slate-200/80 shadow-xs space-y-4">
           <div className="flex items-center justify-between pb-3 border-b">
             <div>
-              <h3 className="font-bold text-base text-samaj-navy">નવા નોંધાયેલ સભ્યોની ચકાસણી</h3>
-              <p className="text-xs text-slate-500">ગામ અને વિગત વેરિફાઈ કરી સભ્યપદ મંજૂર કરો</p>
+              <h3 className="font-bold text-base text-samaj-navy">Member Verification Requests</h3>
+              <p className="text-xs text-slate-500">Verify native village and family background</p>
             </div>
             <span className="text-xs font-bold text-amber-700 bg-amber-50 px-3 py-1 rounded-full border border-amber-200">
-              {pendingMembers.length} અરજીઓ વિચારણા હેઠળ
+              {pendingMembers.length} Applications Pending
             </span>
           </div>
 
           {pendingMembers.length === 0 ? (
             <div className="py-12 text-center text-slate-400 text-xs">
-              કોઈ નવી સભ્ય અરજી પેન્ડિંગ નથી. તમામ સભ્યો મંજૂર થયેલ છે.
+              No pending registrations. All members are verified and active.
             </div>
           ) : (
             <div className="space-y-3">
@@ -334,10 +334,10 @@ export default function AdminDashboardPage() {
                     <div>
                       <h4 className="font-bold text-sm text-slate-900">{m.full_name || 'New Member'}</h4>
                       <p className="text-xs text-slate-600 font-medium">
-                        ફોન: <strong>+91 {m.phone}</strong> | મૂળ ગામ: <strong>{m.native_village || 'N/A'}</strong> | હાલ: {m.current_city || 'N/A'}
+                        Phone: <strong>+91 {m.phone}</strong> • Village: <strong>{m.native_village || 'N/A'}</strong> • City: {m.current_city || 'N/A'}
                       </p>
                       <p className="text-xs text-slate-500 mt-0.5">
-                        ગોત્ર: {m.gotra || 'N/A'} | કુળદેવી: {m.kuldevi || 'N/A'}
+                        Gotra: {m.gotra || 'N/A'} • Kuldevi: {m.kuldevi || 'N/A'}
                       </p>
                     </div>
                   </div>
@@ -345,17 +345,17 @@ export default function AdminDashboardPage() {
                   <div className="flex items-center gap-2 self-end sm:self-center">
                     <button
                       onClick={() => handleApproveMember(m.id)}
-                      className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl flex items-center gap-1.5 transition"
+                      className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl flex items-center gap-1.5 transition touch-manipulation active:scale-95"
                     >
                       <CheckCircle2 className="w-3.5 h-3.5" />
-                      <span>{t('approve_button')}</span>
+                      <span>Approve</span>
                     </button>
                     <button
                       onClick={() => handleRejectMember(m.id)}
-                      className="px-3.5 py-2 bg-slate-200 hover:bg-red-50 hover:text-red-600 text-slate-700 text-xs font-bold rounded-xl transition"
+                      className="px-3 py-1.5 bg-slate-200 hover:bg-red-50 hover:text-red-600 text-slate-700 text-xs font-bold rounded-xl transition touch-manipulation active:scale-95"
                     >
                       <XCircle className="w-3.5 h-3.5" />
-                      <span>{t('reject_button')}</span>
+                      <span>Reject</span>
                     </button>
                   </div>
                 </div>
@@ -365,23 +365,23 @@ export default function AdminDashboardPage() {
         </div>
       )}
 
-      {/* TAB 2: ROLE BASED ACCESS CONTROL */}
+      {/* TAB 2: RBAC ROLES */}
       {activeTab === 'roles' && (
-        <div className="max-w-2xl bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-subtle space-y-6">
+        <div className="max-w-2xl bg-white rounded-3xl p-5 sm:p-8 border border-slate-200 shadow-xs space-y-6">
           <div>
-            <h3 className="font-bold text-base text-samaj-navy">હોદ્દા અને પરમિશન બદલો (RBAC)</h3>
+            <h3 className="font-bold text-base text-samaj-navy">Role-Based Access Control (RBAC)</h3>
             <p className="text-xs text-slate-500">
-              Super Admin, President, Secretary, Treasurer અને કારોબારી સભ્યના હોદ્દા સોંપો
+              Assign administrative roles: Super Admin, President, Secretary, Treasurer, Committee Member
             </p>
           </div>
 
           <form onSubmit={handleRoleChange} className="space-y-4 text-xs">
             <div>
-              <label className="block font-bold text-slate-700 mb-1">યુઝર ID / ફોન નંબર *</label>
+              <label className="block font-bold text-slate-700 mb-1">User ID or Phone Number *</label>
               <input
                 type="text"
                 required
-                placeholder="દા.ત. u-mem-10 અથવા યુઝર ID"
+                placeholder="e.g. u-mem-10 or 9898000001"
                 value={roleUserId}
                 onChange={(e) => setRoleUserId(e.target.value)}
                 className="w-full px-3.5 py-2.5 border rounded-xl"
@@ -389,66 +389,66 @@ export default function AdminDashboardPage() {
             </div>
 
             <div>
-              <label className="block font-bold text-slate-700 mb-1">સોંપવા માટેનો હોદ્દો (New Role) *</label>
+              <label className="block font-bold text-slate-700 mb-1">Designate Role *</label>
               <select
                 value={roleSelect}
                 onChange={(e) => setRoleSelect(e.target.value)}
-                className="w-full px-3.5 py-2.5 border rounded-xl bg-white"
+                className="w-full px-3.5 py-2.5 border rounded-xl bg-white font-medium"
               >
-                <option value="super_admin">👑 Super Admin (સર્વોચ્ચ નિયંત્રણ)</option>
-                <option value="president">🏛️ President (પ્રમુખ)</option>
-                <option value="secretary">📜 Secretary (મહામંત્રી)</option>
-                <option value="treasurer">💰 Treasurer (ખજાનચી)</option>
-                <option value="committee">👥 Committee Member (કારોબારી સભ્ય)</option>
-                <option value="member">👤 Member (સામાન્ય સભ્ય)</option>
+                <option value="super_admin">👑 Super Admin (Full Control)</option>
+                <option value="president">🏛️ President</option>
+                <option value="secretary">📜 Secretary</option>
+                <option value="treasurer">💰 Treasurer</option>
+                <option value="committee">👥 Committee Member</option>
+                <option value="member">👤 Standard Member</option>
               </select>
             </div>
 
             <button
               type="submit"
-              className="w-full py-3 bg-samaj-navy text-white font-bold rounded-xl hover:bg-slate-800 transition"
+              className="w-full py-3.5 bg-samaj-navy text-white font-bold rounded-xl hover:bg-slate-800 transition touch-manipulation active:scale-98"
             >
-              હોદ્દો અપડેટ કરો (Update Role)
+              Update Member Role
             </button>
           </form>
         </div>
       )}
 
-      {/* TAB 3: PUBLISH ANNOUNCEMENT */}
+      {/* TAB 3: PUBLISH NOTICE */}
       {activeTab === 'announcements' && (
-        <div className="max-w-2xl bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-subtle space-y-6">
-          <h3 className="font-bold text-base text-samaj-navy">નવો સત્તાવાર પરિપત્ર પ્રકાશિત કરો</h3>
+        <div className="max-w-2xl bg-white rounded-3xl p-5 sm:p-8 border border-slate-200 shadow-xs space-y-6">
+          <h3 className="font-bold text-base text-samaj-navy">Publish Official Circular</h3>
 
           <form onSubmit={handleCreateAnnouncement} className="space-y-4 text-xs">
             <div>
-              <label className="block font-bold text-slate-700 mb-1">પરિપત્ર શીર્ષક (ગુજરાતી) *</label>
+              <label className="block font-bold text-slate-700 mb-1">Circular Title *</label>
               <input
                 type="text"
                 required
-                value={ancForm.title_gu}
-                onChange={(e) => setAncForm({ ...ancForm, title_gu: e.target.value, title: e.target.value })}
-                className="w-full px-3 py-2 border rounded-xl"
+                value={ancForm.title}
+                onChange={(e) => setAncForm({ ...ancForm, title: e.target.value, title_gu: e.target.value })}
+                className="w-full px-3.5 py-2.5 border rounded-xl"
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block font-bold text-slate-700 mb-1">કેટેગરી *</label>
+                <label className="block font-bold text-slate-700 mb-1">Category *</label>
                 <select
                   value={ancForm.category}
                   onChange={(e) => setAncForm({ ...ancForm, category: e.target.value })}
-                  className="w-full px-3 py-2 border rounded-xl bg-white"
+                  className="w-full px-3.5 py-2.5 border rounded-xl bg-white"
                 >
-                  <option value="notice">સત્તાવાર નોટિસ (Notice)</option>
-                  <option value="urgent">તાકીદનું (Urgent)</option>
-                  <option value="achievement">વિદ્યાર્થી સિદ્ધિ / સન્માન</option>
-                  <option value="condolence">દુઃખદ અવસાન (બેસણું)</option>
-                  <option value="wedding">લગ્ન પ્રસંગ</option>
-                  <option value="birthday">જન્મદિવસ શુભેચ્છા</option>
+                  <option value="notice">Official Notice</option>
+                  <option value="urgent">Urgent Circular</option>
+                  <option value="achievement">Student Achievement</option>
+                  <option value="condolence">Condolence Notice</option>
+                  <option value="wedding">Wedding Announcement</option>
+                  <option value="birthday">Birthday Greeting</option>
                 </select>
               </div>
 
-              <div className="flex items-center gap-4 pt-5">
+              <div className="flex items-center gap-4 pt-4 sm:pt-6">
                 <label className="flex items-center gap-2 cursor-pointer font-bold">
                   <input
                     type="checkbox"
@@ -456,7 +456,7 @@ export default function AdminDashboardPage() {
                     onChange={(e) => setAncForm({ ...ancForm, is_urgent: e.target.checked })}
                     className="w-4 h-4 rounded"
                   />
-                  <span>તાકીદનું (Urgent)</span>
+                  <span>Mark Urgent</span>
                 </label>
 
                 <label className="flex items-center gap-2 cursor-pointer font-bold">
@@ -466,113 +466,113 @@ export default function AdminDashboardPage() {
                     onChange={(e) => setAncForm({ ...ancForm, is_pinned: e.target.checked })}
                     className="w-4 h-4 rounded"
                   />
-                  <span>ટોચ પર પિન કરો</span>
+                  <span>Pin to Top</span>
                 </label>
               </div>
             </div>
 
             <div>
-              <label className="block font-bold text-slate-700 mb-1">સંપૂર્ણ વિગત (Content) *</label>
+              <label className="block font-bold text-slate-700 mb-1">Content Details *</label>
               <textarea
                 rows={4}
                 required
                 value={ancForm.content}
                 onChange={(e) => setAncForm({ ...ancForm, content: e.target.value })}
-                className="w-full px-3 py-2 border rounded-xl"
+                className="w-full px-3.5 py-2.5 border rounded-xl"
               />
             </div>
 
             <button
               type="submit"
-              className="w-full py-3 bg-samaj-navy text-white font-bold rounded-xl hover:bg-slate-800 transition"
+              className="w-full py-3.5 bg-samaj-navy text-white font-bold rounded-xl hover:bg-slate-800 transition touch-manipulation active:scale-98"
             >
-              પરિપત્ર પ્રકાશિત કરો
+              Publish Circular
             </button>
           </form>
         </div>
       )}
 
-      {/* TAB 4: CREATE EVENT */}
+      {/* TAB 4: ADD EVENT */}
       {activeTab === 'events' && (
-        <div className="max-w-2xl bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-subtle space-y-6">
-          <h3 className="font-bold text-base text-samaj-navy">નવો સમાજ કાર્યક્રમ આયોજિત કરો</h3>
+        <div className="max-w-2xl bg-white rounded-3xl p-5 sm:p-8 border border-slate-200 shadow-xs space-y-6">
+          <h3 className="font-bold text-base text-samaj-navy">Schedule Community Event</h3>
 
           <form onSubmit={handleCreateEvent} className="space-y-4 text-xs">
             <div>
-              <label className="block font-bold text-slate-700 mb-1">કાર્યક્રમનું નામ (Title) *</label>
+              <label className="block font-bold text-slate-700 mb-1">Event Title *</label>
               <input
                 type="text"
                 required
-                value={evForm.title_gu}
-                onChange={(e) => setEvForm({ ...evForm, title_gu: e.target.value, title: e.target.value })}
-                className="w-full px-3 py-2 border rounded-xl"
+                value={evForm.title}
+                onChange={(e) => setEvForm({ ...evForm, title: e.target.value, title_gu: e.target.value })}
+                className="w-full px-3.5 py-2.5 border rounded-xl"
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block font-bold text-slate-700 mb-1">સ્થળ (Venue Name) *</label>
+                <label className="block font-bold text-slate-700 mb-1">Venue Name *</label>
                 <input
                   type="text"
                   required
                   value={evForm.venue_name}
                   onChange={(e) => setEvForm({ ...evForm, venue_name: e.target.value })}
-                  className="w-full px-3 py-2 border rounded-xl"
+                  className="w-full px-3.5 py-2.5 border rounded-xl"
                 />
               </div>
 
               <div>
-                <label className="block font-bold text-slate-700 mb-1">શહેર (City) *</label>
+                <label className="block font-bold text-slate-700 mb-1">City *</label>
                 <input
                   type="text"
                   required
                   value={evForm.city}
                   onChange={(e) => setEvForm({ ...evForm, city: e.target.value })}
-                  className="w-full px-3 py-2 border rounded-xl"
+                  className="w-full px-3.5 py-2.5 border rounded-xl"
                 />
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block font-bold text-slate-700 mb-1">શરૂઆત તારીખ અને સમય *</label>
+                <label className="block font-bold text-slate-700 mb-1">Start Date & Time *</label>
                 <input
                   type="datetime-local"
                   required
                   value={evForm.start_time}
                   onChange={(e) => setEvForm({ ...evForm, start_time: e.target.value })}
-                  className="w-full px-3 py-2 border rounded-xl"
+                  className="w-full px-3.5 py-2.5 border rounded-xl"
                 />
               </div>
 
               <div>
-                <label className="block font-bold text-slate-700 mb-1">સમાપ્તિ તારીખ અને સમય *</label>
+                <label className="block font-bold text-slate-700 mb-1">End Date & Time *</label>
                 <input
                   type="datetime-local"
                   required
                   value={evForm.end_time}
                   onChange={(e) => setEvForm({ ...evForm, end_time: e.target.value })}
-                  className="w-full px-3 py-2 border rounded-xl"
+                  className="w-full px-3.5 py-2.5 border rounded-xl"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block font-bold text-slate-700 mb-1">કાર્યક્રમ વર્ણન *</label>
+              <label className="block font-bold text-slate-700 mb-1">Event Description *</label>
               <textarea
                 rows={3}
                 required
                 value={evForm.description}
                 onChange={(e) => setEvForm({ ...evForm, description: e.target.value })}
-                className="w-full px-3 py-2 border rounded-xl"
+                className="w-full px-3.5 py-2.5 border rounded-xl"
               />
             </div>
 
             <button
               type="submit"
-              className="w-full py-3 bg-samaj-navy text-white font-bold rounded-xl hover:bg-slate-800 transition"
+              className="w-full py-3.5 bg-samaj-navy text-white font-bold rounded-xl hover:bg-slate-800 transition touch-manipulation active:scale-98"
             >
-              કાર્યક્રમ પ્રકાશિત કરો (Publish Event)
+              Publish Event
             </button>
           </form>
         </div>
@@ -580,8 +580,8 @@ export default function AdminDashboardPage() {
 
       {/* TAB 5: AUDIT LOGS */}
       {activeTab === 'logs' && (
-        <div className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-subtle space-y-4">
-          <h3 className="font-bold text-base text-samaj-navy">વહીવટી ઓડિટ પ્રવૃત્તિ નોંધ (Admin Activity Logs)</h3>
+        <div className="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/80 shadow-xs space-y-4">
+          <h3 className="font-bold text-base text-samaj-navy">Administrative Audit Trail</h3>
 
           <div className="space-y-2 text-xs">
             {auditLogs.map((log) => (
@@ -589,11 +589,11 @@ export default function AdminDashboardPage() {
                 <div>
                   <span className="font-bold text-slate-900 uppercase tracking-wider">{log.action}</span>
                   <span className="text-slate-500 block">
-                    Admin: {log.admin_name} (+91 {log.admin_phone}) | Target: {log.target_type} ({log.target_id})
+                    Admin: {log.admin_name} (+91 {log.admin_phone}) • Target: {log.target_type} ({log.target_id})
                   </span>
                 </div>
-                <span className="text-slate-400 font-mono">
-                  {new Date(log.created_at).toLocaleString('gu-IN')}
+                <span className="text-slate-400 font-mono text-[11px]">
+                  {new Date(log.created_at).toLocaleString('en-US')}
                 </span>
               </div>
             ))}

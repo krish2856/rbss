@@ -24,7 +24,7 @@ import { fetchApi } from '../../lib/api';
 
 export default function MatrimonyPage() {
   const { t } = useI18n();
-  const { user, isApproved } = useAuth();
+  const { user } = useAuth();
 
   const [activeTab, setActiveTab] = useState<'browse' | 'interests' | 'my_biodata'>('browse');
   const [profiles, setProfiles] = useState<any[]>([]);
@@ -41,7 +41,7 @@ export default function MatrimonyPage() {
 
   // Modals
   const [interestTarget, setInterestTarget] = useState<any>(null);
-  const [interestNote, setInterestNote] = useState('જય પરશુરામ. અમે આપના બાયોડેટામાં રસ દર્શાવીએ છીએ. કૃપા કરીને વિગત ચકાસી આગળ વાતચીત માટે અનુકૂળતા જણાવશો.');
+  const [interestNote, setInterestNote] = useState('Jay Parshuram. We are interested in your matrimonial profile. Please review our details and let us know if we can connect further.');
   const [sendSuccess, setSendSuccess] = useState('');
   const [selectedBiodata, setSelectedBiodata] = useState<any>(null);
 
@@ -55,8 +55,8 @@ export default function MatrimonyPage() {
     manglik: 'no',
     diet: 'pure_vegetarian',
     annual_income: '15 - 18 Lakhs INR',
-    partner_expectations: 'Looking for a cultured, educated Brahmin girl with family values.',
-    hobbies: 'Reading, spiritual events, travel, classical music',
+    partner_expectations: 'Looking for a cultured, educated Brahmin bride/groom with strong family values.',
+    hobbies: 'Reading, spiritual events, travel, music',
   });
 
   const loadProfiles = async () => {
@@ -105,7 +105,7 @@ export default function MatrimonyPage() {
           note: interestNote,
         }),
       });
-      setSendSuccess('તમારી પસંદગી વિનંતી (Interest) સફળતાપૂર્વક મોકલાઈ ગઈ છે.');
+      setSendSuccess('Matrimonial interest request sent successfully.');
       setTimeout(() => {
         setInterestTarget(null);
         setSendSuccess('');
@@ -135,7 +135,7 @@ export default function MatrimonyPage() {
         method: 'POST',
         body: JSON.stringify(biodataForm),
       });
-      alert('તમારો વૈવાહિક બાયોડેટા સફળતાપૂર્વક સચવાયો છે.');
+      alert('Your matrimonial biodata has been saved successfully.');
       loadProfiles();
       setActiveTab('browse');
     } catch (err: any) {
@@ -144,50 +144,49 @@ export default function MatrimonyPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 space-y-6">
       {/* Header Banner */}
-      <div className="bg-gradient-to-r from-rose-950 via-slate-900 to-samaj-navy-950 rounded-3xl p-6 sm:p-8 text-white relative overflow-hidden shadow-card">
+      <div className="bg-gradient-to-r from-rose-950 via-slate-900 to-samaj-navy-950 rounded-3xl p-5 sm:p-8 text-white relative overflow-hidden shadow-card">
         <div className="relative z-10 max-w-2xl space-y-2">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-500/20 text-rose-300 text-xs font-bold border border-rose-500/30">
             <Heart className="w-3.5 h-3.5 fill-rose-400" />
-            <span>રાજગોર વૈવાહિક સંબંધ પોર્ટલ</span>
+            <span>RBSS Matrimony Portal</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-            {t('matrimony_title')}
+          <h1 className="text-xl sm:text-3xl font-extrabold tracking-tight">
+            Verified Samaj Matrimonial Biodatas
           </h1>
           <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-            {t('matrimony_sub')}
+            Find suitable brides and grooms within the Rajgor Brahmin community with mutual contact privacy and verified family backgrounds.
           </p>
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="flex items-center gap-2 border-b border-slate-200 text-sm font-bold">
+      {/* Responsive Horizontal Scroll Tabs */}
+      <div className="flex items-center gap-2 border-b border-slate-200 text-xs sm:text-sm font-bold overflow-x-auto pb-1 scrollbar-none">
         <button
           onClick={() => setActiveTab('browse')}
-          className={`pb-3 px-4 flex items-center gap-2 border-b-2 transition ${
+          className={`pb-2.5 px-3 sm:px-4 flex items-center gap-1.5 border-b-2 whitespace-nowrap transition touch-manipulation ${
             activeTab === 'browse'
-              ? 'border-samaj-gold text-samaj-navy'
+              ? 'border-orange-600 text-orange-600'
               : 'border-transparent text-slate-400 hover:text-slate-700'
           }`}
         >
           <Heart className="w-4 h-4" />
-          <span>{t('matrimony_all')} ({profiles.length})</span>
+          <span>All Profiles ({profiles.length})</span>
         </button>
 
         {user && (
           <button
             onClick={() => setActiveTab('interests')}
-            className={`pb-3 px-4 flex items-center gap-2 border-b-2 transition ${
+            className={`pb-2.5 px-3 sm:px-4 flex items-center gap-1.5 border-b-2 whitespace-nowrap transition touch-manipulation ${
               activeTab === 'interests'
-                ? 'border-samaj-gold text-samaj-navy'
+                ? 'border-orange-600 text-orange-600'
                 : 'border-transparent text-slate-400 hover:text-slate-700'
             }`}
           >
             <Sparkles className="w-4 h-4" />
             <span>
-              મારી પસંદગી વિનંતીઓ (Interests) (
-              {myInterests.received.length + myInterests.sent.length})
+              Interests ({myInterests.received.length + myInterests.sent.length})
             </span>
           </button>
         )}
@@ -195,14 +194,14 @@ export default function MatrimonyPage() {
         {user && (
           <button
             onClick={() => setActiveTab('my_biodata')}
-            className={`pb-3 px-4 flex items-center gap-2 border-b-2 transition ${
+            className={`pb-2.5 px-3 sm:px-4 flex items-center gap-1.5 border-b-2 whitespace-nowrap transition touch-manipulation ${
               activeTab === 'my_biodata'
-                ? 'border-samaj-gold text-samaj-navy'
+                ? 'border-orange-600 text-orange-600'
                 : 'border-transparent text-slate-400 hover:text-slate-700'
             }`}
           >
             <FileText className="w-4 h-4" />
-            <span>મારો બાયોડેટા (My Biodata)</span>
+            <span>My Biodata</span>
           </button>
         )}
       </div>
@@ -210,29 +209,29 @@ export default function MatrimonyPage() {
       {/* TAB 1: BROWSE PROFILES */}
       {activeTab === 'browse' && (
         <div className="space-y-6">
-          {/* Filters */}
-          <div className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-subtle flex flex-wrap items-center gap-3 text-xs font-semibold text-slate-700">
+          {/* Mobile-Friendly Filters */}
+          <div className="bg-white rounded-2xl p-3.5 sm:p-4 border border-slate-200/80 shadow-xs flex flex-wrap items-center gap-3 text-xs font-semibold text-slate-700">
             <div className="flex items-center gap-1.5">
-              <span>પાત્ર પસંદ કરો:</span>
+              <span>Looking for:</span>
               <select
                 value={genderFilter}
                 onChange={(e) => setGenderFilter(e.target.value)}
                 className="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 font-medium"
               >
-                <option value="">{t('all')}</option>
-                <option value="female">કન્યાઓ (Brides)</option>
-                <option value="male">યુવકો (Grooms)</option>
+                <option value="">All</option>
+                <option value="female">Brides (કન્યાઓ)</option>
+                <option value="male">Grooms (યુવકો)</option>
               </select>
             </div>
 
             <div className="flex items-center gap-1.5">
-              <span>માંગલિક સ્થિતિ:</span>
+              <span>Manglik Status:</span>
               <select
                 value={manglikFilter}
                 onChange={(e) => setManglikFilter(e.target.value)}
                 className="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 font-medium"
               >
-                <option value="">બધા (All)</option>
+                <option value="">All</option>
                 <option value="no">Non-Manglik</option>
                 <option value="anshik">Anshik Manglik</option>
                 <option value="yes">Manglik</option>
@@ -242,51 +241,51 @@ export default function MatrimonyPage() {
 
           {/* Cards Grid */}
           {loading ? (
-            <div className="py-20 text-center text-slate-400 text-sm">{t('loading')}</div>
+            <div className="py-20 text-center text-slate-400 text-sm">Loading profiles...</div>
           ) : profiles.length === 0 ? (
-            <div className="bg-white rounded-2xl p-12 text-center text-slate-500 border border-slate-200">
-              કોઈ વૈવાહિક પ્રોફાઇલ ઉપલબ્ધ નથી.
+            <div className="bg-white rounded-2xl p-10 text-center text-slate-500 border border-slate-200 text-sm">
+              No matrimonial profiles found matching criteria.
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {profiles.map((p) => (
                 <div
                   key={p.id}
-                  className="bg-white rounded-3xl overflow-hidden border border-slate-200/80 shadow-subtle hover:shadow-card transition flex flex-col justify-between"
+                  className="bg-white rounded-3xl overflow-hidden border border-slate-200/80 shadow-xs hover:shadow-md transition flex flex-col justify-between"
                 >
                   <div>
                     {/* Photo with badges */}
-                    <div className="relative h-64 bg-slate-100 overflow-hidden group">
+                    <div className="relative h-60 bg-slate-100 overflow-hidden group">
                       <img
                         src={p.photos?.[0] || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&fit=crop&q=80'}
                         alt={p.full_name}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />
-                      <div className="absolute top-3 left-3 flex gap-2">
+                      <div className="absolute top-3 left-3 flex gap-1.5">
                         <span className="px-2.5 py-1 rounded-full bg-white/95 text-samaj-navy text-xs font-bold shadow-xs">
-                          {p.age} વર્ષ | {p.height_cm} cm
+                          {p.age} Yrs • {p.height_cm} cm
                         </span>
                         {p.is_verified && (
                           <span className="px-2 py-1 rounded-full bg-emerald-500 text-white text-[10px] font-bold flex items-center gap-1 shadow-xs">
                             <CheckCircle2 className="w-3 h-3" />
-                            <span>વેરિફાઇડ</span>
+                            <span>Verified</span>
                           </span>
                         )}
                       </div>
 
-                      <div className="absolute bottom-3 right-3 px-2 py-0.5 rounded-md bg-samaj-navy/85 text-amber-300 text-[10px] font-semibold backdrop-blur-xs">
-                        રાશિ: {p.rashi}
+                      <div className="absolute bottom-3 right-3 px-2 py-0.5 rounded-md bg-samaj-navy/90 text-amber-300 text-[10px] font-semibold backdrop-blur-xs">
+                        Rashi: {p.rashi}
                       </div>
                     </div>
 
                     {/* Bio Specs */}
-                    <div className="p-5 space-y-3">
+                    <div className="p-4 sm:p-5 space-y-3">
                       <div>
-                        <h3 className="font-extrabold text-lg text-slate-900 leading-snug">
+                        <h3 className="font-extrabold text-base text-slate-900 leading-snug">
                           {p.full_name}
                         </h3>
-                        <p className="text-xs font-semibold text-samaj-gold-700 mt-0.5">
-                          ગોત્ર: {p.gotra} | કુળદેવી: {p.kuldevi}
+                        <p className="text-xs font-semibold text-orange-600 mt-0.5">
+                          Gotra: {p.gotra} • Kuldevi: {p.kuldevi}
                         </p>
                       </div>
 
@@ -301,33 +300,33 @@ export default function MatrimonyPage() {
                         </div>
                         <div className="flex items-center gap-2">
                           <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                          <span className="truncate">મૂળ: {p.native_village} | હાલ: {p.current_city}</span>
+                          <span className="truncate">Native: {p.native_village} • City: {p.current_city}</span>
                         </div>
                       </div>
 
                       {p.partner_expectations && (
                         <p className="text-xs text-slate-500 line-clamp-2 italic">
-                          અપેક્ષા: &quot;{p.partner_expectations}&quot;
+                          Expectation: &quot;{p.partner_expectations}&quot;
                         </p>
                       )}
                     </div>
                   </div>
 
                   {/* Actions */}
-                  <div className="p-5 pt-0 border-t border-slate-100 flex items-center justify-between gap-3 mt-2">
+                  <div className="p-4 sm:p-5 pt-0 border-t border-slate-100 flex items-center justify-between gap-2 mt-2">
                     <button
                       onClick={() => setSelectedBiodata(p)}
-                      className="px-3.5 py-2 text-xs font-bold text-slate-700 hover:text-samaj-navy bg-slate-100 rounded-xl transition"
+                      className="px-3 py-2 text-xs font-bold text-slate-700 hover:text-samaj-navy bg-slate-100 rounded-xl transition touch-manipulation active:scale-95"
                     >
-                      સંપૂર્ણ બાયોડેટા
+                      View Biodata
                     </button>
 
                     <button
                       onClick={() => setInterestTarget(p)}
-                      className="px-4 py-2 bg-samaj-gold hover:bg-samaj-gold-500 text-slate-950 text-xs font-bold rounded-xl shadow-xs transition flex items-center gap-1.5"
+                      className="px-3.5 py-2 bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold rounded-xl shadow-xs transition flex items-center gap-1.5 touch-manipulation active:scale-95"
                     >
-                      <Heart className="w-3.5 h-3.5 fill-slate-950" />
-                      <span>{t('send_interest')}</span>
+                      <Heart className="w-3.5 h-3.5 fill-white" />
+                      <span>Send Interest</span>
                     </button>
                   </div>
                 </div>
@@ -337,18 +336,17 @@ export default function MatrimonyPage() {
         </div>
       )}
 
-      {/* TAB 2: MY INTERESTS (WORKFLOW) */}
+      {/* TAB 2: MY INTERESTS */}
       {activeTab === 'interests' && (
-        <div className="space-y-8">
-          {/* Received Requests */}
-          <div className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-subtle space-y-4">
+        <div className="space-y-6">
+          <div className="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/80 shadow-xs space-y-4">
             <h3 className="font-bold text-base text-samaj-navy flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-samaj-gold" />
-              <span>તમને મળેલા પ્રસ્તાવ (Received Interests) ({myInterests.received.length})</span>
+              <Sparkles className="w-4 h-4 text-orange-600" />
+              <span>Received Proposals ({myInterests.received.length})</span>
             </h3>
 
             {myInterests.received.length === 0 ? (
-              <p className="text-xs text-slate-400 italic py-4">હજુ કોઈ પ્રસ્તાવ મળેલ નથી.</p>
+              <p className="text-xs text-slate-400 italic py-4">No proposals received yet.</p>
             ) : (
               <div className="space-y-3">
                 {myInterests.received.map((item) => (
@@ -356,7 +354,7 @@ export default function MatrimonyPage() {
                     key={item.id}
                     className="p-4 rounded-2xl border border-slate-200 bg-slate-50/70 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
                   >
-                    <div className="flex items-center gap-3.5">
+                    <div className="flex items-center gap-3">
                       <img
                         src={item.photo_url || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=120&fit=crop&q=80'}
                         alt={item.full_name}
@@ -365,7 +363,7 @@ export default function MatrimonyPage() {
                       <div>
                         <h4 className="font-bold text-sm text-slate-900">{item.full_name}</h4>
                         <p className="text-xs text-slate-500">
-                          ગોત્ર: {item.gotra} | શહેર: {item.current_city}
+                          Gotra: {item.gotra} • City: {item.current_city}
                         </p>
                         <p className="text-xs text-slate-600 mt-1 italic">&quot;{item.note}&quot;</p>
                       </div>
@@ -376,21 +374,21 @@ export default function MatrimonyPage() {
                         <>
                           <button
                             onClick={() => handleRespondInterest(item.id, 'accept')}
-                            className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition"
+                            className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition touch-manipulation active:scale-95"
                           >
-                            સ્વીકારો (Accept & Unlock)
+                            Accept & Unlock Phone
                           </button>
                           <button
                             onClick={() => handleRespondInterest(item.id, 'reject')}
-                            className="px-3 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-xl transition"
+                            className="px-3 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-xl transition touch-manipulation active:scale-95"
                           >
-                            અસ્વીકાર
+                            Decline
                           </button>
                         </>
                       ) : (
                         <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-200">
                           <Unlock className="w-3.5 h-3.5" />
-                          <span>સ્વીકારેલ – સંપર્ક: {item.phone}</span>
+                          <span>Accepted – Phone: {item.phone}</span>
                         </div>
                       )}
                     </div>
@@ -400,15 +398,14 @@ export default function MatrimonyPage() {
             )}
           </div>
 
-          {/* Sent Requests */}
-          <div className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-subtle space-y-4">
+          <div className="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/80 shadow-xs space-y-4">
             <h3 className="font-bold text-base text-samaj-navy flex items-center gap-2">
               <Send className="w-4 h-4 text-blue-600" />
-              <span>તમે મોકલેલા પ્રસ્તાવ (Sent Interests) ({myInterests.sent.length})</span>
+              <span>Sent Proposals ({myInterests.sent.length})</span>
             </h3>
 
             {myInterests.sent.length === 0 ? (
-              <p className="text-xs text-slate-400 italic py-4">તમે હજુ કોઈ પ્રસ્તાવ મોકલેલ નથી.</p>
+              <p className="text-xs text-slate-400 italic py-4">You have not sent any interest requests yet.</p>
             ) : (
               <div className="space-y-3">
                 {myInterests.sent.map((item) => (
@@ -424,7 +421,7 @@ export default function MatrimonyPage() {
                       />
                       <div>
                         <h4 className="font-bold text-sm text-slate-900">{item.full_name}</h4>
-                        <p className="text-xs text-slate-500">શહેર: {item.current_city}</p>
+                        <p className="text-xs text-slate-500">City: {item.current_city}</p>
                       </div>
                     </div>
 
@@ -432,12 +429,12 @@ export default function MatrimonyPage() {
                       {item.status === 'accepted' ? (
                         <span className="text-emerald-700 bg-emerald-50 px-3 py-1 rounded-lg border border-emerald-200 flex items-center gap-1">
                           <Unlock className="w-3.5 h-3.5" />
-                          <span>સ્વીકૃત – ફોન: {item.phone}</span>
+                          <span>Accepted – Phone: {item.phone}</span>
                         </span>
                       ) : (
                         <span className="text-amber-800 bg-amber-50 px-3 py-1 rounded-lg border border-amber-200 flex items-center gap-1">
                           <Clock className="w-3.5 h-3.5" />
-                          <span>વિચારણા હેઠળ (Pending)</span>
+                          <span>Pending</span>
                         </span>
                       )}
                     </div>
@@ -451,15 +448,15 @@ export default function MatrimonyPage() {
 
       {/* TAB 3: MY BIODATA FORM */}
       {activeTab === 'my_biodata' && (
-        <div className="max-w-2xl bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-card space-y-6">
-          <h2 className="text-xl font-bold text-samaj-navy">
-            વૈવાહિક બાયોડેટા નોંધણી / ફેરફાર
+        <div className="max-w-2xl bg-white rounded-3xl p-5 sm:p-8 border border-slate-200 shadow-xs space-y-6">
+          <h2 className="text-lg sm:text-xl font-bold text-samaj-navy">
+            Register or Edit Matrimonial Biodata
           </h2>
 
           <form onSubmit={handleSaveMyBiodata} className="space-y-4 text-sm">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">ઊંચાઈ (cm)</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Height (cm)</label>
                 <input
                   type="number"
                   value={biodataForm.height_cm}
@@ -469,7 +466,7 @@ export default function MatrimonyPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">વાર્ષિક આવક (Annual Income)</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Annual Income</label>
                 <input
                   type="text"
                   value={biodataForm.annual_income}
@@ -479,7 +476,7 @@ export default function MatrimonyPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">રાશિ (Rashi)</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Rashi</label>
                 <input
                   type="text"
                   value={biodataForm.rashi}
@@ -489,7 +486,7 @@ export default function MatrimonyPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">માંગલિક (Manglik)</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Manglik Status</label>
                 <select
                   value={biodataForm.manglik}
                   onChange={(e) => setBiodataForm({ ...biodataForm, manglik: e.target.value })}
@@ -504,7 +501,7 @@ export default function MatrimonyPage() {
 
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1">
-                જીવનસાથી અપેક્ષા (Partner Expectations)
+                Partner Expectations
               </label>
               <textarea
                 rows={3}
@@ -516,9 +513,9 @@ export default function MatrimonyPage() {
 
             <button
               type="submit"
-              className="w-full py-3 bg-samaj-navy text-white font-bold rounded-xl hover:bg-slate-800 transition"
+              className="w-full py-3.5 bg-samaj-navy text-white font-bold rounded-xl hover:bg-slate-800 transition touch-manipulation active:scale-98"
             >
-              બાયોડેટા પ્રકાશિત કરો (Save Biodata)
+              Save Biodata Profile
             </button>
           </form>
         </div>
@@ -526,14 +523,14 @@ export default function MatrimonyPage() {
 
       {/* Modal: Send Interest */}
       {interestTarget && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 animate-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 pb-[env(safe-area-inset-bottom,16px)]">
+          <div className="bg-white rounded-3xl max-w-md w-full p-5 sm:p-6 shadow-2xl border border-slate-200 animate-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between pb-3 border-b mb-4">
               <h3 className="font-bold text-base text-samaj-navy flex items-center gap-2">
                 <Heart className="w-4 h-4 text-rose-500 fill-rose-500" />
-                <span>રસ દર્શાવો (Send Interest)</span>
+                <span>Send Matrimonial Interest</span>
               </h3>
-              <button onClick={() => setInterestTarget(null)} className="p-1 text-slate-400 hover:bg-slate-100 rounded-full">
+              <button onClick={() => setInterestTarget(null)} className="p-1 text-slate-400 hover:bg-slate-100 rounded-full touch-manipulation">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -546,27 +543,27 @@ export default function MatrimonyPage() {
             ) : (
               <form onSubmit={handleSendInterest} className="space-y-4 text-sm">
                 <p className="text-xs text-slate-600">
-                  આપ <strong>{interestTarget.full_name}</strong> ને વૈવાહિક પ્રસ્તાવ મોકલી રહ્યા છો. સામે પક્ષ તરફથી સ્વીકાર થયા પછી બંને પરિવારના સંપર્ક નંબર ઉપલબ્ધ થશે.
+                  You are sending an interest request to <strong>{interestTarget.full_name}</strong>. Phone numbers are unlocked mutually once accepted.
                 </p>
 
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1">
-                    સંદેશ / પરિચય નોંધ (Message)
+                    Introduction Message
                   </label>
                   <textarea
-                    rows={4}
+                    rows={3}
                     required
                     value={interestNote}
                     onChange={(e) => setInterestNote(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-samaj-navy"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-samaj-navy"
                   />
                 </div>
 
                 <button
                   type="submit"
-                  className="w-full py-3 bg-samaj-gold hover:bg-samaj-gold-500 text-slate-950 font-bold text-xs rounded-xl shadow-xs transition"
+                  className="w-full py-3.5 bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs rounded-xl shadow-xs transition touch-manipulation active:scale-98"
                 >
-                  પ્રસ્તાવ મોકલો (Confirm & Send)
+                  Confirm & Send Request
                 </button>
               </form>
             )}
@@ -576,45 +573,45 @@ export default function MatrimonyPage() {
 
       {/* Modal: Full Biodata Preview */}
       {selectedBiodata && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-6 shadow-2xl border border-slate-200 animate-in zoom-in-95 duration-200 text-slate-800">
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 pb-[env(safe-area-inset-bottom,16px)]">
+          <div className="bg-white rounded-3xl max-w-lg w-full max-h-[85vh] overflow-y-auto p-5 sm:p-6 shadow-2xl border border-slate-200 animate-in zoom-in-95 duration-200 text-slate-800">
             <div className="flex items-center justify-between pb-3 border-b mb-4">
-              <h3 className="font-bold text-base text-samaj-navy">સંપૂર્ણ લગ્ન બાયોડેટા</h3>
-              <button onClick={() => setSelectedBiodata(null)} className="p-1 rounded-full text-slate-400 hover:bg-slate-100">
+              <h3 className="font-bold text-base text-samaj-navy">Complete Marriage Biodata</h3>
+              <button onClick={() => setSelectedBiodata(null)} className="p-1 rounded-full text-slate-400 hover:bg-slate-100 touch-manipulation">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <div className="space-y-4 text-xs">
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3.5">
                 <img
                   src={selectedBiodata.photos?.[0] || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&fit=crop&q=80'}
                   alt={selectedBiodata.full_name}
-                  className="w-20 h-20 rounded-2xl object-cover border-2 border-amber-300"
+                  className="w-18 h-18 rounded-2xl object-cover border-2 border-orange-400 shrink-0"
                 />
                 <div>
                   <h4 className="font-extrabold text-base text-slate-900">{selectedBiodata.full_name}</h4>
-                  <p className="text-samaj-gold-700 font-bold">ગોત્ર: {selectedBiodata.gotra} | {selectedBiodata.kuldevi}</p>
-                  <p className="text-slate-500">{selectedBiodata.age} વર્ષ | {selectedBiodata.height_cm} cm | {selectedBiodata.complexion}</p>
+                  <p className="text-orange-600 font-bold">Gotra: {selectedBiodata.gotra} • {selectedBiodata.kuldevi}</p>
+                  <p className="text-slate-500">{selectedBiodata.age} Yrs • {selectedBiodata.height_cm} cm • {selectedBiodata.complexion}</p>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-2 bg-slate-50 p-3 rounded-xl border border-slate-200">
-                <div>રાશિ: <strong>{selectedBiodata.rashi}</strong></div>
-                <div>માંગલિક: <strong>{selectedBiodata.manglik}</strong></div>
-                <div>શિક્ષણ: <strong>{selectedBiodata.education}</strong></div>
-                <div>નોકરી/વ્યવસાય: <strong>{selectedBiodata.occupation}</strong></div>
-                <div>આવક: <strong>{selectedBiodata.annual_income}</strong></div>
-                <div>મૂળ ગામ: <strong>{selectedBiodata.native_village}</strong></div>
+                <div>Rashi: <strong>{selectedBiodata.rashi}</strong></div>
+                <div>Manglik: <strong>{selectedBiodata.manglik}</strong></div>
+                <div>Education: <strong>{selectedBiodata.education}</strong></div>
+                <div>Occupation: <strong>{selectedBiodata.occupation}</strong></div>
+                <div>Income: <strong>{selectedBiodata.annual_income}</strong></div>
+                <div>Native Village: <strong>{selectedBiodata.native_village}</strong></div>
               </div>
 
               <div className="p-3 bg-amber-50 rounded-xl border border-amber-200">
-                <h5 className="font-bold text-slate-800 mb-1">જીવનસાથી અપેક્ષા:</h5>
+                <h5 className="font-bold text-slate-800 mb-1">Partner Expectations:</h5>
                 <p className="text-slate-600">{selectedBiodata.partner_expectations}</p>
               </div>
 
               <div className="p-3 bg-slate-100 rounded-xl text-center text-slate-600 font-medium">
-                🔒 ફોન નંબર ગોપનીયતા: બંને પક્ષો વચ્ચે પરસ્પર રસ સ્વીકાર્યા પછી જ મોબાઈલ નંબર પ્રદર્શિત થાય છે.
+                🔒 Privacy: Contact numbers are shared only upon mutual consent.
               </div>
             </div>
           </div>

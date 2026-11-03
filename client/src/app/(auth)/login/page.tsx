@@ -11,7 +11,7 @@ import { fetchApi } from '../../../lib/api';
 export default function LoginPage() {
   const router = useRouter();
   const { login } = useAuth();
-  const { t, lang } = useI18n();
+  const { t } = useI18n();
 
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
@@ -33,7 +33,7 @@ export default function LoginPage() {
       });
       setOtpSent(true);
       if (res.demoOtp) {
-        setOtp(res.demoOtp); // Auto-fill 123456
+        setOtp(res.demoOtp);
       }
     } catch (err: any) {
       setError(err.message || 'Failed to send OTP.');
@@ -60,10 +60,10 @@ export default function LoginPage() {
 
       if (res.token && res.user) {
         login(res.token, res.user);
-        router.push('/members');
+        router.push('/');
       }
     } catch (err: any) {
-      setError(err.message || 'Login failed. Please check OTP.');
+      setError(err.message || 'Login failed. Please enter OTP 123456.');
     } finally {
       setLoading(false);
     }
@@ -80,7 +80,7 @@ export default function LoginPage() {
       });
       if (res.token && res.user) {
         login(res.token, res.user);
-        router.push('/members');
+        router.push('/');
       }
     } catch (err: any) {
       setError(err.message || 'Login failed.');
@@ -90,8 +90,8 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-[85vh] flex items-center justify-center py-12 px-4 sm:px-6">
-      <div className="max-w-md w-full bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-card space-y-6">
+    <div className="min-h-[85vh] flex items-center justify-center py-8 px-4 sm:px-6">
+      <div className="max-w-md w-full bg-white rounded-3xl p-5 sm:p-8 border border-slate-200/90 shadow-xl space-y-6">
         {/* Official RBSS Logo */}
         <div className="text-center space-y-3">
           <div className="w-24 h-24 mx-auto rounded-full overflow-hidden border-3 border-samaj-navy shadow-md bg-white p-1">
@@ -102,13 +102,11 @@ export default function LoginPage() {
             />
           </div>
           <div>
-            <h1 className="text-xl font-black text-samaj-navy">
-              {lang === 'gu'
-                ? 'શ્રી રાજગોર બ્રાહ્મણ (કાઠીગોર) સેવા સમિતિ'
-                : 'Shree Rajgor Brahman (Kathigor) Seva Samiti'}
+            <h1 className="text-lg sm:text-xl font-black text-samaj-navy leading-tight">
+              Shree Rajgor Brahman Seva Samiti
             </h1>
-            <p className="text-xs font-bold text-samaj-gold uppercase tracking-wider mt-1">
-              RBSS Ahmedabad – Mobile OTP Login
+            <p className="text-xs font-bold text-orange-600 uppercase tracking-wider mt-1">
+              RBSS Ahmedabad • Member Sign In
             </p>
           </div>
         </div>
@@ -123,7 +121,7 @@ export default function LoginPage() {
         <form onSubmit={handleLoginSubmit} className="space-y-4 text-xs">
           <div>
             <label className="block font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-              {lang === 'gu' ? 'મોબાઇલ નંબર' : 'Mobile Number'}
+              Mobile Number
             </label>
             <div className="relative">
               <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 text-sm font-semibold">
@@ -131,6 +129,8 @@ export default function LoginPage() {
               </span>
               <input
                 type="tel"
+                inputMode="numeric"
+                autoComplete="tel"
                 required
                 maxLength={10}
                 value={phone}
@@ -143,11 +143,13 @@ export default function LoginPage() {
 
           <div className="space-y-2">
             <label className="block font-bold text-slate-700 uppercase tracking-wider">
-              {lang === 'gu' ? 'OTP કોડ' : 'Enter 6-Digit OTP'}
+              Enter 6-Digit OTP
             </label>
             <div className="flex gap-2">
               <input
                 type="text"
+                inputMode="numeric"
+                autoComplete="one-time-code"
                 maxLength={6}
                 value={otp}
                 onChange={(e) => setOtp(e.target.value)}
@@ -158,9 +160,9 @@ export default function LoginPage() {
                 type="button"
                 onClick={handleSendOtp}
                 disabled={loading}
-                className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold rounded-xl transition"
+                className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold rounded-xl transition touch-manipulation active:scale-95"
               >
-                {otpSent ? (lang === 'gu' ? 'ફરી મોકલો' : 'Resend OTP') : (lang === 'gu' ? 'OTP મેળવો' : 'Get OTP')}
+                {otpSent ? 'Resend' : 'Get OTP'}
               </button>
             </div>
             <p className="text-[11px] text-slate-400">
@@ -171,10 +173,10 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3.5 bg-samaj-navy hover:bg-slate-900 text-white font-bold text-sm rounded-xl shadow-md transition active:scale-98 flex items-center justify-center gap-2"
+            className="w-full py-3.5 bg-samaj-navy hover:bg-slate-900 text-white font-bold text-sm rounded-xl shadow-md transition active:scale-98 flex items-center justify-center gap-2 cursor-pointer touch-manipulation"
           >
-            <span>{loading ? t('loading') : (lang === 'gu' ? 'OTP દ્વારા લૉગિન કરો' : 'Login with OTP')}</span>
-            <ArrowRight className="w-4 h-4 text-samaj-gold" />
+            <span>{loading ? 'Verifying...' : 'Sign In with OTP'}</span>
+            <ArrowRight className="w-4 h-4 text-orange-400" />
           </button>
         </form>
 
@@ -189,7 +191,7 @@ export default function LoginPage() {
             <button
               type="button"
               onClick={() => handleQuickLogin('9898000001')}
-              className="p-2.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-orange-50 text-left transition"
+              className="p-2.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-orange-50 text-left transition touch-manipulation"
             >
               <div className="font-bold text-samaj-navy">Super Admin</div>
               <div className="text-[10px] text-slate-500">Dharmeshbhai Rajgor</div>
@@ -198,7 +200,7 @@ export default function LoginPage() {
             <button
               type="button"
               onClick={() => handleQuickLogin('9898000010')}
-              className="p-2.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-orange-50 text-left transition"
+              className="p-2.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-orange-50 text-left transition touch-manipulation"
             >
               <div className="font-bold text-slate-800">Verified Member</div>
               <div className="text-[10px] text-slate-500">Jigar Rajgor</div>

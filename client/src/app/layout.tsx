@@ -5,32 +5,32 @@ import { I18nProvider } from '../context/I18nContext';
 import { Navbar } from '../components/Navbar';
 import { BottomNav } from '../components/BottomNav';
 import { Footer } from '../components/Footer';
-import { PWAInstallPrompt } from '../components/PWAInstallPrompt';
 
 export const metadata: Metadata = {
-  title: 'Rajgor Brahmin Samaj – Complete Digital Community Platform & PWA',
-  description: 'Official digital platform connecting Rajgor Brahmin Samaj members across Gujarat and worldwide. Member Directory, Matrimony, Events, Samaj Funds, and Cultural Heritage.',
+  title: 'Shree Rajgor Brahman Seva Samiti (RBSS) – Digital Community App',
+  description: 'Official mobile application connecting Rajgor Brahmin (Kathigor) Samaj members worldwide. Member Directory, Matrimony, Events, Samaj Funds, and Cultural Heritage.',
   manifest: '/manifest.json',
   icons: {
     icon: '/favicon.ico',
-    apple: '/icons/icon-192x192.png',
+    apple: '/logo.png',
   },
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'Rajgor Samaj',
+    title: 'RBSS Samaj',
   },
-  applicationName: 'Rajgor Samaj',
+  applicationName: 'RBSS Samaj',
   formatDetection: {
     telephone: true,
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: '#0f172a',
+  themeColor: '#0b254e',
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 5,
+  maximumScale: 1,
+  userScalable: false,
   viewportFit: 'cover',
 };
 
@@ -40,18 +40,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="gu">
+    <html lang="en">
       <head>
-        <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+        <link rel="apple-touch-icon" href="/logo.png" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="mobile-web-app-capable" content="yes" />
       </head>
-      <body className="min-h-screen flex flex-col bg-[#fcfbf7] text-slate-900 antialiased selection:bg-amber-100 selection:text-amber-900">
+      <body className="min-h-screen min-h-[100dvh] flex flex-col bg-[#fcfbf7] text-slate-900 antialiased">
         <AuthProvider>
           <I18nProvider>
-            <PWAInstallPrompt />
             <Navbar />
-            <main className="flex-1 pb-16 md:pb-0">{children}</main>
+            <main className="flex-1 w-full max-w-full pb-24 md:pb-8">
+              {children}
+            </main>
             <Footer />
             <BottomNav />
           </I18nProvider>
