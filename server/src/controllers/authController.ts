@@ -39,12 +39,16 @@ export async function sendOtp(req: Request, res: Response): Promise<void> {
   }
 
   // Send REAL SMS via Fast2SMS Gateway if API Key is set
+  let smsSent = false;
   if (fast2SmsKey) {
     try {
       const smsUrl = `https://www.fast2sms.com/dev/bulkV2?authorization=${fast2SmsKey}&variables_values=${otp}&route=otp&numbers=${phone}`;
       const smsRes = await fetch(smsUrl);
-      const smsData = await smsRes.json();
-      console.log('Real SMS gateway response:', smsData);
+      const smsData: any = await smsRes.json();
+      console.log('Fast2SMS gateway response:', smsData);
+      if (smsData && smsData.return === true) {
+        smsSent = true;
+      }
     } catch (smsErr) {
       console.error('Failed to send real SMS via gateway:', smsErr);
     }
@@ -52,10 +56,10 @@ export async function sendOtp(req: Request, res: Response): Promise<void> {
 
   res.json({
     success: true,
-    message: isRealSmsConfigured
+    message: smsSent
       ? `Real OTP sent successfully via SMS to +91 ${phone}`
-      : `OTP sent successfully to +91 ${phone}`,
-    demoOtp: isRealSmsConfigured ? undefined : otp,
+      : `OTP generated for +91 ${phone}`,
+    demoOtp: smsSent ? undefined : otp,
   });
 }
 
