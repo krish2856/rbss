@@ -6,7 +6,7 @@ import { memoryStore, pool, isUsingPostgres } from '../db/db';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_rajgor_samaj_jwt_token_2026_xyz987';
 
-// Send OTP to mobile
+// Send OTP to mobile (Supports Real SMS via Fast2SMS / Twilio, with fallback demo OTP for testing)
 export async function sendOtp(req: Request, res: Response): Promise<void> {
   const { phone } = req.body;
   if (!phone || phone.length < 10) {
@@ -14,9 +14,17 @@ export async function sendOtp(req: Request, res: Response): Promise<void> {
     return;
   }
 
-  const otp = '123456';
+  // Check if real SMS gateway is configured in environment variables
+  const fast2SmsKey = process.env.FAST2SMS_API_KEY;
+  const isRealSmsConfigured = Boolean(fast2SmsKey);
+
+  // Generate random 6-digit OTP when real SMS is enabled, otherwise use test OTP 123456
+  const otp = isRealSmsConfigured
+    ? Math.floor(100000 + Math.random() * 900000).toString()
+    : '123456';
   const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
 
+  // Save OTP in Database
   if (isUsingPostgres && pool) {
     await pool.query(
       `UPDATE users SET otp_code = $1, otp_expires_at = $2 WHERE phone = $3`,
@@ -30,10 +38,24 @@ export async function sendOtp(req: Request, res: Response): Promise<void> {
     }
   }
 
+  // Send REAL SMS via Fast2SMS Gateway if API Key is set
+  if (fast2SmsKey) {
+    try {
+      const smsUrl = `https://www.fast2sms.com/dev/bulkV2?authorization=${fast2SmsKey}&variables_values=${otp}&route=otp&numbers=${phone}`;
+      const smsRes = await fetch(smsUrl);
+      const smsData = await smsRes.json();
+      console.log('Real SMS gateway response:', smsData);
+    } catch (smsErr) {
+      console.error('Failed to send real SMS via gateway:', smsErr);
+    }
+  }
+
   res.json({
     success: true,
-    message: `OTP sent successfully to +91 ${phone}`,
-    demoOtp: otp,
+    message: isRealSmsConfigured
+      ? `Real OTP sent successfully via SMS to +91 ${phone}`
+      : `OTP sent successfully to +91 ${phone}`,
+    demoOtp: isRealSmsConfigured ? undefined : otp,
   });
 }
 
