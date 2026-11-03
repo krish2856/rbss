@@ -6,6 +6,9 @@ import { memoryStore, pool, isUsingPostgres } from '../db/db';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_rajgor_samaj_jwt_token_2026_xyz987';
 
+// In-memory pending OTP registry (persists OTP per phone for 15 minutes)
+const pendingOtps = new Map<string, { otp: string; expiresAt: Date }>();
+
 // Send OTP to mobile (Supports Real SMS via Fast2SMS / Twilio, with fallback demo OTP for testing)
 export async function sendOtp(req: Request, res: Response): Promise<void> {
   const { phone } = req.body;
@@ -24,7 +27,10 @@ export async function sendOtp(req: Request, res: Response): Promise<void> {
     : '123456';
   const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
 
-  // Save OTP in Database
+  // Store in active pending OTPs registry
+  pendingOtps.set(phone, { otp, expiresAt });
+
+  // Save OTP in Database if user exists
   if (isUsingPostgres && pool) {
     await pool.query(
       `UPDATE users SET otp_code = $1, otp_expires_at = $2 WHERE phone = $3`,
@@ -89,11 +95,17 @@ export async function login(req: Request, res: Response): Promise<void> {
     }
   }
 
+  // Verify OTP against pending memory, database, or master test codes
+  const pending = pendingOtps.get(phone);
+  const isPendingValid = Boolean(pending && pending.otp === otp && pending.expiresAt > new Date());
+  const isDbValid = Boolean(user && user.otp_code === otp);
+  const isMasterBypass = otp === '123456' || otp === '000000';
+  const isOtpValid = isPendingValid || isDbValid || isMasterBypass;
+
   // If user does not exist yet and OTP is valid, auto-create account instantly (No approval barrier)
   if (!user) {
-    const validOtp = otp === '123456' || otp === '000000';
-    if (!validOtp && !password) {
-      res.status(400).json({ success: false, message: 'Invalid OTP code.' });
+    if (!isOtpValid && !password) {
+      res.status(400).json({ success: false, message: 'Invalid OTP code. Please enter the valid OTP.' });
       return;
     }
 
@@ -171,8 +183,8 @@ export async function login(req: Request, res: Response): Promise<void> {
   } else {
     // Existing user verification
     if (otp) {
-      if (otp !== '123456' && user.otp_code !== otp) {
-        res.status(400).json({ success: false, message: 'Invalid OTP code.' });
+      if (!isOtpValid) {
+        res.status(400).json({ success: false, message: 'Invalid OTP code. Please enter the valid OTP.' });
         return;
       }
     } else if (password) {
@@ -183,6 +195,9 @@ export async function login(req: Request, res: Response): Promise<void> {
       }
     }
   }
+
+  // Clear consumed pending OTP
+  pendingOtps.delete(phone);
 
   // Ensure user is marked approved
   user.is_approved = true;

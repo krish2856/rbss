@@ -1,9 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowRight, UserCheck } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { useAuth } from '../../../context/AuthContext';
 import { useI18n } from '../../../context/I18nContext';
 import { fetchApi } from '../../../lib/api';
@@ -16,6 +15,7 @@ export default function LoginPage() {
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
   const [otpSent, setOtpSent] = useState(false);
+  const [otpNotice, setOtpNotice] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -26,6 +26,7 @@ export default function LoginPage() {
     }
     setLoading(true);
     setError('');
+    setOtpNotice('');
     try {
       const res = await fetchApi('/auth/send-otp', {
         method: 'POST',
@@ -33,7 +34,9 @@ export default function LoginPage() {
       });
       setOtpSent(true);
       if (res.demoOtp) {
-        setOtp(res.demoOtp);
+        setOtpNotice(`OTP: ${res.demoOtp}. Please enter it below to sign in.`);
+      } else {
+        setOtpNotice('OTP sent successfully to your mobile number via SMS.');
       }
     } catch (err: any) {
       setError(err.message || 'Failed to send OTP.');
@@ -63,27 +66,7 @@ export default function LoginPage() {
         router.push('/');
       }
     } catch (err: any) {
-      setError(err.message || 'Login failed. Please enter OTP 123456.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleQuickLogin = async (demoPhone: string) => {
-    setPhone(demoPhone);
-    setLoading(true);
-    setError('');
-    try {
-      const res = await fetchApi('/auth/login', {
-        method: 'POST',
-        body: JSON.stringify({ phone: demoPhone, otp: '123456' }),
-      });
-      if (res.token && res.user) {
-        login(res.token, res.user);
-        router.push('/');
-      }
-    } catch (err: any) {
-      setError(err.message || 'Login failed.');
+      setError(err.message || 'Login failed. Please enter the valid OTP.');
     } finally {
       setLoading(false);
     }
@@ -123,27 +106,22 @@ export default function LoginPage() {
             <label className="block font-bold text-slate-700 uppercase tracking-wider mb-1.5">
               Mobile Number
             </label>
-            <div className="relative">
-              <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 text-sm font-semibold">
-                +91
-              </span>
-              <input
-                type="tel"
-                inputMode="numeric"
-                autoComplete="tel"
-                required
-                maxLength={10}
-                value={phone}
-                onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
-                placeholder="9898000001"
-                className="w-full pl-13 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-samaj-navy text-sm font-bold text-slate-900 tracking-wide"
-              />
-            </div>
+            <input
+              type="tel"
+              inputMode="numeric"
+              autoComplete="tel"
+              required
+              maxLength={10}
+              value={phone}
+              onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
+              placeholder="Enter Mobile Number"
+              className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-samaj-navy text-sm font-bold text-slate-900 tracking-wide"
+            />
           </div>
 
           <div className="space-y-2">
             <label className="block font-bold text-slate-700 uppercase tracking-wider">
-              Enter 6-Digit OTP
+              Enter OTP
             </label>
             <div className="flex gap-2">
               <input
@@ -152,22 +130,24 @@ export default function LoginPage() {
                 autoComplete="one-time-code"
                 maxLength={6}
                 value={otp}
-                onChange={(e) => setOtp(e.target.value)}
-                placeholder="123456"
+                onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
+                placeholder="Enter OTP"
                 className="flex-1 px-4 py-3 rounded-xl border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-samaj-navy text-sm font-mono font-bold tracking-widest text-center"
               />
               <button
                 type="button"
                 onClick={handleSendOtp}
                 disabled={loading}
-                className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold rounded-xl transition touch-manipulation active:scale-95"
+                className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold rounded-xl transition touch-manipulation active:scale-95 cursor-pointer"
               >
-                {otpSent ? 'Resend' : 'Get OTP'}
+                {otpSent ? 'Resend OTP' : 'Get OTP'}
               </button>
             </div>
-            <p className="text-[11px] text-slate-400">
-              Demo OTP: <strong className="text-slate-700 font-mono">123456</strong> (Instant Login)
-            </p>
+            {otpNotice && (
+              <div className="p-2.5 bg-amber-50 border border-amber-200 text-amber-900 text-xs font-semibold rounded-xl leading-relaxed">
+                {otpNotice}
+              </div>
+            )}
           </div>
 
           <button
@@ -179,34 +159,6 @@ export default function LoginPage() {
             <ArrowRight className="w-4 h-4 text-orange-400" />
           </button>
         </form>
-
-        {/* Demo Switcher */}
-        <div className="pt-4 border-t border-slate-100 space-y-2.5 text-xs">
-          <div className="flex items-center gap-1.5 font-bold text-slate-400 uppercase tracking-wider">
-            <UserCheck className="w-3.5 h-3.5" />
-            <span>Instant Demo Accounts:</span>
-          </div>
-
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              type="button"
-              onClick={() => handleQuickLogin('9898000001')}
-              className="p-2.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-orange-50 text-left transition touch-manipulation"
-            >
-              <div className="font-bold text-samaj-navy">Super Admin</div>
-              <div className="text-[10px] text-slate-500">Dharmeshbhai Rajgor</div>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => handleQuickLogin('9898000010')}
-              className="p-2.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-orange-50 text-left transition touch-manipulation"
-            >
-              <div className="font-bold text-slate-800">Verified Member</div>
-              <div className="text-[10px] text-slate-500">Jigar Rajgor</div>
-            </button>
-          </div>
-        </div>
       </div>
     </div>
   );

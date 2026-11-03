@@ -41,6 +41,7 @@ export default function HomePage() {
   const [mobile, setMobile] = useState('');
   const [otp, setOtp] = useState('');
   const [otpSent, setOtpSent] = useState(false);
+  const [otpNotice, setOtpNotice] = useState('');
   const [loginLoading, setLoginLoading] = useState(false);
   const [loginError, setLoginError] = useState('');
 
@@ -120,6 +121,7 @@ export default function HomePage() {
     }
     setLoginLoading(true);
     setLoginError('');
+    setOtpNotice('');
     try {
       const res = await fetchApi('/auth/send-otp', {
         method: 'POST',
@@ -127,7 +129,9 @@ export default function HomePage() {
       });
       setOtpSent(true);
       if (res.demoOtp) {
-        setOtp(res.demoOtp);
+        setOtpNotice(`OTP: ${res.demoOtp}. Please enter it below to sign in.`);
+      } else {
+        setOtpNotice('OTP sent successfully to your mobile number via SMS.');
       }
     } catch (err: any) {
       setLoginError(err.message || 'Failed to send OTP.');
@@ -156,26 +160,7 @@ export default function HomePage() {
         login(res.token, res.user);
       }
     } catch (err: any) {
-      setLoginError(err.message || 'Login failed. Please enter OTP 123456.');
-    } finally {
-      setLoginLoading(false);
-    }
-  };
-
-  const handleQuickDemo = async (demoPhone: string) => {
-    setMobile(demoPhone);
-    setLoginLoading(true);
-    setLoginError('');
-    try {
-      const res = await fetchApi('/auth/login', {
-        method: 'POST',
-        body: JSON.stringify({ phone: demoPhone, otp: '123456' }),
-      });
-      if (res.token && res.user) {
-        login(res.token, res.user);
-      }
-    } catch (err: any) {
-      setLoginError(err.message || 'Login failed.');
+      setLoginError(err.message || 'Login failed. Please enter the valid OTP.');
     } finally {
       setLoginLoading(false);
     }
@@ -334,85 +319,60 @@ export default function HomePage() {
               <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
                 Mobile Number
               </label>
-              <div className="relative">
-                <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 text-sm font-semibold">
-                  +91
-                </span>
-                <input
-                  type="tel"
-                  required
-                  maxLength={10}
-                  value={mobile}
-                  onChange={(e) => setMobile(e.target.value.replace(/\D/g, ''))}
-                  placeholder="9898000001"
-                  className="w-full pl-13 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-samaj-navy text-sm font-bold text-slate-900 tracking-wide"
-                />
-              </div>
+              <input
+                type="tel"
+                inputMode="numeric"
+                autoComplete="tel"
+                required
+                maxLength={10}
+                value={mobile}
+                onChange={(e) => setMobile(e.target.value.replace(/\D/g, ''))}
+                placeholder="Enter Mobile Number"
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-samaj-navy text-sm font-bold text-slate-900 tracking-wide"
+              />
             </div>
 
             {/* OTP Input & Request button */}
             <div className="space-y-2">
               <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
-                6-Digit OTP Code
+                Enter OTP
               </label>
               <div className="flex gap-2">
                 <input
                   type="text"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
                   maxLength={6}
                   value={otp}
-                  onChange={(e) => setOtp(e.target.value)}
-                  placeholder="123456"
+                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
+                  placeholder="Enter OTP"
                   className="flex-1 px-4 py-3 rounded-xl border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-samaj-navy text-sm font-mono font-bold tracking-widest text-center"
                 />
                 <button
                   type="button"
                   onClick={handleSendOtp}
                   disabled={loginLoading}
-                  className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold rounded-xl transition"
+                  className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold rounded-xl transition cursor-pointer touch-manipulation active:scale-95"
                 >
                   {otpSent ? 'Resend OTP' : 'Get OTP'}
                 </button>
               </div>
-              <p className="text-[11px] text-slate-400">
-                Demo OTP: <strong className="text-slate-700 font-mono">123456</strong> (Instant Login)
-              </p>
+              {otpNotice && (
+                <div className="p-2.5 bg-amber-50 border border-amber-200 text-amber-900 text-xs font-semibold rounded-xl leading-relaxed">
+                  {otpNotice}
+                </div>
+              )}
             </div>
 
             <button
               type="submit"
               disabled={loginLoading}
-              className="w-full py-3.5 bg-samaj-navy hover:bg-slate-900 text-white font-bold text-sm rounded-xl shadow-md transition active:scale-98 flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full py-3.5 bg-samaj-navy hover:bg-slate-900 text-white font-bold text-sm rounded-xl shadow-md transition active:scale-98 flex items-center justify-center gap-2 cursor-pointer touch-manipulation"
             >
               <span>{loginLoading ? 'Verifying...' : 'Sign In with OTP'}</span>
               <ArrowRight className="w-4 h-4 text-orange-400" />
             </button>
           </form>
-
-          {/* Quick Demo Accounts */}
-          <div className="pt-4 border-t border-slate-100 space-y-2.5">
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">
-              Instant Demo Access:
-            </span>
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              <button
-                type="button"
-                onClick={() => handleQuickDemo('9898000001')}
-                className="p-2.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-orange-50 text-left transition"
-              >
-                <div className="font-bold text-samaj-navy">Super Admin</div>
-                <div className="text-[10px] text-slate-500">Dharmeshbhai Rajgor</div>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleQuickDemo('9898000010')}
-                className="p-2.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-orange-50 text-left transition"
-              >
-                <div className="font-bold text-slate-800">Verified Member</div>
-                <div className="text-[10px] text-slate-500">Jigar Rajgor</div>
-              </button>
-            </div>
-          </div>
         </div>
       </div>
     );
